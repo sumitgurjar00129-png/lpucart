@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order History - LPUcart - Uni Mall se Hostel Parcel Delivery</title>
+  <meta name="description" content="View your past campus parcel deliveries, booking receipts, handover OTP logs, and re-order with one click on LPUcart.">
+  <link rel="canonical" href="https://lpucart.netlify.app/history.html">
+
+  <!-- Favicon & Touch Icons -->
+  <link rel="icon" href="/favicon.png" type="image/png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="LPUcart">
+  <meta property="og:url" content="https://lpucart.netlify.app/history.html">
+  <meta property="og:title" content="Order History - LPUcart - Uni Mall se Hostel Parcel Delivery">
+  <meta property="og:description" content="View your past campus parcel deliveries, booking receipts, handover OTP logs, and re-order with one click on LPUcart.">
+  <meta property="og:image" content="https://lpucart.netlify.app/assets/logo.png">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Order History - LPUcart - Uni Mall se Hostel Parcel Delivery">
+  <meta name="twitter:description" content="View your past campus parcel deliveries, booking receipts, handover OTP logs, and re-order with one click on LPUcart.">
+  <meta name="twitter:image" content="https://lpucart.netlify.app/assets/logo.png">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Main Stylesheet -->
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+  <!-- Shared Navbar -->
+  <header class="navbar">
+    <div class="container nav-container">
+      <a href="index.html" class="nav-logo brand-logo-pill" aria-label="LPUcart Home">
+        <img src="/assets/logo.png" alt="LPUcart Logo" class="nav-brand-logo" width="64" height="48">
+      </a>
+
+      <nav class="nav-links">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="order.html" class="nav-link">Order Now</a>
+        <a href="track.html" class="nav-link">Track Order</a>
+        <a href="history.html" class="nav-link active">Order History</a>
+        <a href="how-it-works.html" class="nav-link">How It Works</a>
+        <a href="contact.html" class="nav-link">Contact</a>
+        <a href="delivery.html" class="nav-link"><i class="fa-solid fa-motorcycle text-amber-500"></i> Partner Login</a>
+        <a href="admin.html" class="nav-link"><i class="fa-solid fa-chart-pie text-cyan-400"></i> Admin</a>
+      </nav>
+
+      <div class="nav-actions">
+        <button class="theme-toggle-btn" onclick="toggleTheme()" aria-label="Toggle Theme">
+          <i class="fa-solid fa-sun"></i>
+        </button>
+        <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Open Mobile Menu">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Off-Canvas Drawer -->
+  <div class="mobile-nav-overlay" id="mobile-nav-overlay"></div>
+  <aside class="mobile-nav-menu" id="mobile-nav-menu">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+      <a href="index.html" class="brand-logo-pill" aria-label="LPUcart Home">
+        <img src="/assets/logo.png" alt="LPUcart Logo" class="nav-brand-logo" width="48" height="36">
+      </a>
+      <button class="theme-toggle-btn" onclick="toggleTheme()"><i class="fa-solid fa-sun"></i></button>
+    </div>
+    <a href="index.html" class="nav-link"><i class="fa-solid fa-house"></i> Home</a>
+    <a href="order.html" class="nav-link"><i class="fa-solid fa-cart-shopping"></i> Order Now</a>
+    <a href="track.html" class="nav-link"><i class="fa-solid fa-location-crosshairs"></i> Track Order</a>
+    <a href="history.html" class="nav-link active"><i class="fa-solid fa-clock-rotate-left"></i> Order History</a>
+    <a href="how-it-works.html" class="nav-link"><i class="fa-solid fa-circle-question"></i> How It Works</a>
+    <a href="contact.html" class="nav-link"><i class="fa-solid fa-envelope"></i> Contact Us</a>
+    <a href="delivery.html" class="nav-link"><i class="fa-solid fa-motorcycle"></i> Delivery Partner</a>
+    <a href="admin.html" class="nav-link"><i class="fa-solid fa-chart-line"></i> Admin Dashboard</a>
+  </aside>
+
+  <!-- MAIN HISTORY PAGE -->
+  <main class="section-py">
+    <div class="container">
+      <div class="section-header text-center">
+        <div class="section-badge"><i class="fa-solid fa-clock-rotate-left"></i> LocalStorage Activity</div>
+        <h1 class="section-title">Your Order History</h1>
+        <p class="section-desc">View all past and ongoing campus parcel deliveries placed from your browser session.</p>
+      </div>
+
+      <!-- Controls & Filter Bar -->
+      <div class="glass-card tilt-card" style="padding: 20px 24px; margin-bottom: 32px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+        <!-- Filter Tabs -->
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+          <button class="btn-3d btn-3d-orange btn-sm" id="tab-all" onclick="setFilter('all')">All Orders (<span id="count-all">0</span>)</button>
+          <button class="btn-3d btn-3d-outline btn-sm" id="tab-active" onclick="setFilter('active')">Active (<span id="count-active">0</span>)</button>
+          <button class="btn-3d btn-3d-outline btn-sm" id="tab-delivered" onclick="setFilter('delivered')">Delivered (<span id="count-delivered">0</span>)</button>
+        </div>
+
+        <!-- Search Input -->
+        <div style="display: flex; gap: 10px; min-width: 260px;">
+          <input type="text" id="history-search" class="form-input" placeholder="Search ID, parcel, room..." oninput="renderOrders()">
+        </div>
+      </div>
+
+      <!-- Orders List Container -->
+      <div id="orders-list-grid" style="display: flex; flex-direction: column; gap: 20px;">
+        <!-- Populated dynamically -->
+      </div>
+
+      <!-- Empty State -->
+      <div id="history-empty-state" class="glass-card" style="display: none; padding: 60px 20px; text-align: center; max-width: 600px; margin: 40px auto;">
+        <i class="fa-solid fa-box-open text-amber-500" style="font-size: 3.5rem; margin-bottom: 18px;"></i>
+        <h3 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 8px;">No Orders Found</h3>
+        <p style="color: var(--text-secondary); margin-bottom: 24px;">You haven't placed any orders matching this filter yet.</p>
+        <a href="order.html" class="btn-3d btn-3d-orange"><i class="fa-solid fa-plus"></i> Place a Delivery Request</a>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Shared Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a href="index.html" class="brand-logo-pill footer-logo-pill" aria-label="LPUcart Home" style="display: inline-flex; margin-bottom: 12px;">
+            <img src="/assets/logo.png" alt="LPUcart Logo" class="footer-brand-logo" width="80" height="60">
+          </a>
+          <p>Campus parcel delivery bridge connecting Uni Mall courier desks directly with student hostels.</p>
+        </div>
+        <div>
+          <h4 class="footer-heading">Pages</h4>
+          <ul class="footer-links">
+            <li><a href="order.html">Place Delivery</a></li>
+            <li><a href="track.html">Track Order</a></li>
+            <li><a href="history.html">Order History</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="footer-heading">Support</h4>
+          <ul class="footer-links">
+            <li><a href="contact.html">Contact Team</a></li>
+            <li><a href="how-it-works.html">Pricing Structure</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="footer-heading">Tariff Reminder</h4>
+          <p style="color: var(--text-secondary); font-size: 0.92rem;">
+            1 Parcel: ₹11 • 2+ Parcels: ₹22 • Room: +₹10 • Live: ₹19
+          </p>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <div>&copy; 2026 LPUcart Logistics. For LPU Campus Students.</div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="/js/main.js"></script>
+  <script src="/js/pricing.js"></script>
+  <script src="/js/storage.js"></script>
+
+  <script>
+    let activeFilter = "all";
+
+    document.addEventListener("DOMContentLoaded", () => {
+      renderOrders();
+    });
+
+    function setFilter(filter) {
+      activeFilter = filter;
+
+      // Update button active state
+      document.getElementById("tab-all").className = filter === "all" ? "btn-3d btn-3d-orange btn-sm" : "btn-3d btn-3d-outline btn-sm";
+      document.getElementById("tab-active").className = filter === "active" ? "btn-3d btn-3d-orange btn-sm" : "btn-3d btn-3d-outline btn-sm";
+      document.getElementById("tab-delivered").className = filter === "delivered" ? "btn-3d btn-3d-orange btn-sm" : "btn-3d btn-3d-outline btn-sm";
+
+      renderOrders();
+    }
+
+    function renderOrders() {
+      const allOrders = window.LPU_STORAGE.getOrders();
+      const searchQuery = (document.getElementById("history-search").value || "").trim().toLowerCase();
+
+      // Counts
+      const activeCount = allOrders.filter(o => o.status !== "Delivered").length;
+      const deliveredCount = allOrders.filter(o => o.status === "Delivered").length;
+
+      document.getElementById("count-all").textContent = allOrders.length;
+      document.getElementById("count-active").textContent = activeCount;
+      document.getElementById("count-delivered").textContent = deliveredCount;
+
+      let filtered = allOrders;
+
+      if (activeFilter === "active") {
+        filtered = filtered.filter(o => o.status !== "Delivered");
+      } else if (activeFilter === "delivered") {
+        filtered = filtered.filter(o => o.status === "Delivered");
+      }
+
+      if (searchQuery) {
+        filtered = filtered.filter(o => 
+          o.id.toLowerCase().includes(searchQuery) ||
+          o.trackingId.toLowerCase().includes(searchQuery) ||
+          o.name.toLowerCase().includes(searchQuery) ||
+          o.hostelBlock.toLowerCase().includes(searchQuery) ||
+          o.roomNo.toLowerCase().includes(searchQuery)
+        );
+      }
+
+      const grid = document.getElementById("orders-list-grid");
+      const emptyState = document.getElementById("history-empty-state");
+
+      if (filtered.length === 0) {
+        grid.innerHTML = "";
+        emptyState.style.display = "block";
+        return;
+      }
+
+      emptyState.style.display = "none";
+      grid.innerHTML = filtered.map(order => {
+        let statusClass = "status-picked";
+        if (order.status === "On the way") statusClass = "status-ontheway";
+        if (order.status === "Delivered") statusClass = "status-delivered";
+
+        const formattedDate = new Date(order.createdAt).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' });
+        const totalPrice = (order.priceBreakdown && order.priceBreakdown.total !== undefined) ? order.priceBreakdown.total : 11;
+        const typeBadge = order.deliveryType === "room" ? "To Room (+₹10)" : (order.deliveryType === "live" ? "Live GPS Location" : "Hostel Gate");
+
+        return `
+          <div class="glass-card tilt-card" style="padding: 24px;">
+            <div class="tilt-inner" style="display: flex; flex-direction: column; gap: 16px;">
+              <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 14px;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                  <span style="font-weight: 900; font-family: var(--font-mono); font-size: 1.25rem; color: var(--primary);">${order.id}</span>
+                  <span class="status-pill ${statusClass}">${order.status}</span>
+                </div>
+                <div style="font-size: 0.85rem; color: var(--text-muted);">
+                  <i class="fa-regular fa-calendar"></i> ${formattedDate}
+                </div>
+              </div>
+
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; font-size: 0.9rem;">
+                <div>
+                  <div style="color: var(--text-muted); font-size: 0.78rem;">DESTINATION</div>
+                  <div style="font-weight: 700;">${order.hostelBlock}</div>
+                  <div style="color: var(--text-secondary);">Room: ${order.roomNo}</div>
+                </div>
+
+                <div>
+                  <div style="color: var(--text-muted); font-size: 0.78rem;">PARCELS &amp; SERVICE</div>
+                  <div style="font-weight: 700;">${order.parcels} Parcel(s) • ${typeBadge}</div>
+                  <div style="color: var(--text-secondary); font-family: var(--font-mono); font-size: 0.82rem;">ID: ${order.trackingId}</div>
+                </div>
+
+                <div>
+                  <div style="color: var(--text-muted); font-size: 0.78rem;">PAYMENT &amp; OTP</div>
+                  <div style="font-weight: 800; color: var(--text-primary);">₹${totalPrice} <span style="font-size: 0.8rem; font-weight: 600; color: var(--accent-green);">(${order.paymentStatus})</span></div>
+                  <div style="font-size: 0.85rem; color: var(--primary); font-weight: 700;">
+                    <i class="fa-solid fa-key"></i> OTP: ${order.otp}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Order Actions -->
+              <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; padding-top: 10px; border-top: 1px solid var(--border-subtle);">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <span style="font-size: 0.85rem; color: var(--text-secondary);">Runner:</span>
+                  <strong style="font-size: 0.9rem;">${(order.deliveryBoy && order.deliveryBoy.name) || 'Rahul Kumar'}</strong>
+                  ${order.rating ? `<span style="color: #f59e0b; font-size: 0.85rem;">★ ${order.rating}</span>` : ''}
+                </div>
+
+                <div style="display: flex; gap: 10px;">
+                  <a href="track.html?id=${order.id}" class="btn-3d btn-3d-orange btn-sm">
+                    <i class="fa-solid fa-location-crosshairs"></i> Track Live
+                  </a>
+                  <button type="button" class="btn-3d btn-3d-outline btn-sm" onclick="reorder('${order.id}')">
+                    <i class="fa-solid fa-rotate-right"></i> Re-Order
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      // Re-init 3D tilt on newly rendered cards
+      if (window.init3DTiltCards) window.init3DTiltCards();
+    }
+
+    function reorder(orderId) {
+      const order = window.LPU_STORAGE.getOrderById(orderId);
+      if (order) {
+        window.location.href = `order.html?parcels=${order.parcels}&type=${order.deliveryType}`;
+      }
+    }
+  </script>
+</body>
+</html>
+
