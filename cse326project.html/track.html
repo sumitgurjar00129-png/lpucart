@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Track Order - LPUcart - Uni Mall se Hostel Parcel Delivery</title>
+  <meta name="description" content="Track your LPU campus parcel delivery in real-time. View live status (Picked, On the way, Delivered), runner details, handover OTP, and rating.">
+  <link rel="canonical" href="https://lpucart-delivery.netlify.app/track">
+
+  <!-- Favicon & Touch Icons -->
+  <link rel="icon" href="/favicon.png" type="image/png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="LPUcart">
+  <meta property="og:url" content="https://lpucart-delivery.netlify.app/track">
+  <meta property="og:title" content="Track Order - LPUcart - Uni Mall se Hostel Parcel Delivery">
+  <meta property="og:description" content="Track your LPU campus parcel delivery in real-time. View live status (Picked, On the way, Delivered), runner details, handover OTP, and rating.">
+  <meta property="og:image" content="https://lpucart-delivery.netlify.app/assets/logo.png">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Track Order - LPUcart - Uni Mall se Hostel Parcel Delivery">
+  <meta name="twitter:description" content="Track your LPU campus parcel delivery in real-time. View live status (Picked, On the way, Delivered), runner details, handover OTP, and rating.">
+  <meta name="twitter:image" content="https://lpucart-delivery.netlify.app/assets/logo.png">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Main Stylesheet -->
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+
+  <header class="navbar">
+    <div class="container nav-container">
+      <a href="index.html" class="nav-logo brand-logo-pill" aria-label="LPUcart Home">
+        <img src="/assets/logo.png" alt="LPUcart Logo" class="nav-brand-logo" width="64" height="48">
+      </a>
+
+      <nav class="nav-links">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="order.html" class="nav-link">Order Now</a>
+        <a href="track.html" class="nav-link active">Track Order</a>
+        <a href="history.html" class="nav-link">Order History</a>
+        <a href="how-it-works.html" class="nav-link">How It Works</a>
+        <a href="contact.html" class="nav-link">Contact</a>
+      </nav>
+
+      <div class="nav-actions">
+        <button class="theme-toggle-btn" onclick="toggleTheme()" aria-label="Toggle Theme">
+          <i class="fa-solid fa-sun"></i>
+        </button>
+        <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Open Mobile Menu">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Off-Canvas Drawer -->
+  <div class="mobile-nav-overlay" id="mobile-nav-overlay"></div>
+  <aside class="mobile-nav-menu" id="mobile-nav-menu">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+      <a href="index.html" class="brand-logo-pill" aria-label="LPUcart Home">
+        <img src="/assets/logo.png" alt="LPUcart Logo" class="nav-brand-logo" width="48" height="36">
+      </a>
+      <button class="theme-toggle-btn" onclick="toggleTheme()"><i class="fa-solid fa-sun"></i></button>
+    </div>
+    <a href="index.html" class="nav-link"><i class="fa-solid fa-house"></i> Home</a>
+    <a href="order.html" class="nav-link"><i class="fa-solid fa-cart-shopping"></i> Order Now</a>
+    <a href="track.html" class="nav-link active"><i class="fa-solid fa-location-crosshairs"></i> Track Order</a>
+    <a href="history.html" class="nav-link"><i class="fa-solid fa-clock-rotate-left"></i> Order History</a>
+    <a href="how-it-works.html" class="nav-link"><i class="fa-solid fa-circle-question"></i> How It Works</a>
+    <a href="contact.html" class="nav-link"><i class="fa-solid fa-envelope"></i> Contact Us</a>
+  </aside>
+
+  <!-- MAIN TRACKING CONTENT -->
+  <main class="section-py">
+    <div class="container">
+
+      <!-- Verified Tracking Search Box -->
+      <div class="glass-card tilt-card" style="max-width: 680px; margin: 0 auto 36px; padding: 32px;">
+        <div class="tilt-inner">
+          <div style="text-align: center; margin-bottom: 20px;">
+            <div class="section-badge" style="margin-bottom: 8px;"><i class="fa-solid fa-shield-halved"></i> Verified Student Access</div>
+            <h1 style="font-size: 1.6rem; font-weight: 800; margin: 0;">Track Campus Delivery</h1>
+            <p style="color: var(--text-secondary); font-size: 0.92rem; margin-top: 6px;">
+              Enter your Order ID (or Courier Reference) and the last 4 digits of your phone number to view live status.
+            </p>
+          </div>
+
+          <form onsubmit="handleTrackSearch(event)" style="display: flex; flex-direction: column; gap: 14px;">
+            <div style="display: grid; grid-template-columns: 1.4fr 1fr; gap: 12px;">
+              <div class="form-group">
+                <label class="form-label" for="track-id-input"><i class="fa-solid fa-barcode text-primary"></i> Order / Tracking ID *</label>
+                <input type="text" id="track-id-input" class="form-input" placeholder="e.g. LPU-1234 or Courier ID" required
+                  style="font-family: var(--font-mono); font-weight: 700; text-transform: uppercase;">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="track-phone-last4"><i class="fa-solid fa-phone text-primary"></i> Last 4 Digits of Phone *</label>
+                <input type="tel" id="track-phone-last4" class="form-input" placeholder="e.g. 1234" pattern="[0-9]{4}" maxlength="4" required>
+              </div>
+            </div>
+            <button type="submit" class="btn-3d btn-3d-orange btn-md btn-full">
+              <i class="fa-solid fa-location-crosshairs"></i> Track Order Status
+            </button>
+          </form>
+
+          <!-- Order Not Found Error Card -->
+          <div id="tracking-not-found" class="glass-card" style="display: none; margin-top: 20px; padding: 18px; border: 1px solid rgba(239, 68, 68, 0.4); background: rgba(239, 68, 68, 0.08); text-align: center; border-radius: var(--radius-sm);">
+            <div style="color: var(--accent-red); font-weight: 700; font-size: 1rem; margin-bottom: 4px;">
+              <i class="fa-solid fa-circle-exclamation"></i> Order not found
+            </div>
+            <div id="tracking-not-found-msg" style="font-size: 0.85rem; color: var(--text-secondary);">
+              Please check your Order ID and the last 4 digits of the phone number used when placing the order.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tracking Results Card -->
+      <div id="tracking-result-container" style="display: none; max-width: 860px; margin: 0 auto;">
+        <div class="glass-card tilt-card" style="padding: 36px; margin-bottom: 28px;">
+          <div class="tilt-inner">
+
+            <!-- Order Header -->
+            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 20px;">
+              <div>
+                <span class="section-badge" style="margin-bottom: 6px;"><i class="fa-solid fa-box"></i> Campus Delivery</span>
+                <h2 style="font-size: 1.8rem; font-weight: 900; margin: 0; font-family: var(--font-mono);" id="order-id-title">LPU-0000</h2>
+                <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;" id="order-placed-time">Booked Today</div>
+              </div>
+              <div style="text-align: right;">
+                <div id="order-status-badge" class="status-pill status-ontheway" style="font-size: 1rem; padding: 6px 16px;">
+                  On the way
+                </div>
+              </div>
+            </div>
+
+            <!-- 3D PROGRESS STEPPER (Picked -> On the way -> Delivered) -->
+            <div class="tracking-stepper">
+              <div class="stepper-progress-bg">
+                <div class="stepper-progress-fill" id="stepper-fill"></div>
+              </div>
+
+              <!-- Node 1: Picked from Uni Mall -->
+              <div class="step-node" id="step-node-picked">
+                <div class="step-circle"><i class="fa-solid fa-box-open"></i></div>
+                <div style="text-align: center;">
+                  <div class="step-node-title">Picked</div>
+                  <div style="font-size: 0.76rem; color: var(--text-muted);">From Uni Mall</div>
+                </div>
+              </div>
+
+              <!-- Node 2: On the way -->
+              <div class="step-node" id="step-node-ontheway">
+                <div class="step-circle"><i class="fa-solid fa-motorcycle"></i></div>
+                <div style="text-align: center;">
+                  <div class="step-node-title">On the way</div>
+                  <div style="font-size: 0.76rem; color: var(--text-muted);">En route to Hostel</div>
+                </div>
+              </div>
+
+              <!-- Node 3: Delivered with OTP -->
+              <div class="step-node" id="step-node-delivered">
+                <div class="step-circle"><i class="fa-solid fa-circle-check"></i></div>
+                <div style="text-align: center;">
+                  <div class="step-node-title">Delivered</div>
+                  <div style="font-size: 0.76rem; color: var(--text-muted);">OTP Verified</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- OTP Box Showcase (Highlight for Student) -->
+            <div class="otp-display-box" id="student-otp-card">
+              <div style="display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 700; font-size: 0.9rem; color: var(--primary);">
+                <i class="fa-solid fa-key"></i> YOUR PARCEL HANDOVER OTP
+              </div>
+              <div class="otp-number" id="track-otp-number">0000</div>
+              <div style="font-size: 0.85rem; color: var(--text-secondary);">
+                Tell this 4-digit code to the delivery partner when they arrive. Handover cannot be completed without this OTP.
+              </div>
+            </div>
+
+            <!-- Delivery Partner Information Card -->
+            <div class="glass-card" style="padding: 22px; margin: 24px 0; background: rgba(30, 62, 98, 0.2); border: 1px solid var(--border-card); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px;">
+              <div style="display: flex; align-items: center; gap: 16px;">
+                <div style="width: 48px; height: 48px; border-radius: 50%; background: rgba(255,107,0,0.15); display: flex; align-items: center; justify-content: center; font-size: 1.4rem; color: var(--primary);">
+                  <i class="fa-solid fa-user-ninja"></i>
+                </div>
+                <div>
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 1.15rem; font-weight: 800;" id="runner-name">Assigned Partner</span>
+                    <span class="status-pill status-delivered" style="font-size: 0.72rem;"><i class="fa-solid fa-circle-check"></i> Verified Partner</span>
+                  </div>
+                  <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 2px;" id="runner-vehicle">
+                    LPUcart Campus Delivery Runner
+                  </div>
+                  <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 2px;">
+                    <i class="fa-solid fa-phone"></i> <span id="runner-phone">+91 96800 40551</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Quick Communication Action Buttons -->
+              <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button type="button" class="btn-3d btn-3d-orange btn-sm" id="whatsapp-runner-btn">
+                  <i class="fa-brands fa-whatsapp"></i> Chat on WhatsApp
+                </button>
+                <a href="#" class="btn-3d btn-3d-outline btn-sm" id="call-runner-btn">
+                  <i class="fa-solid fa-phone"></i> Call Runner
+                </a>
+              </div>
+            </div>
+
+            <!-- Order Details Grid -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; font-size: 0.92rem; margin-top: 24px;">
+              <div style="background: var(--bg-input); padding: 16px; border-radius: var(--radius-md);">
+                <div style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 4px; font-weight: 700;">STUDENT &amp; DESTINATION</div>
+                <div style="font-weight: 700;" id="detail-student-name">Verified Student</div>
+                <div style="color: var(--text-secondary);" id="detail-hostel-room">Hostel Block • Room: Masked</div>
+                <div style="color: var(--text-secondary);" id="detail-student-phone">Phone: Verified</div>
+                <div style="color: var(--text-secondary); margin-top: 4px;" id="detail-time-slot">Slot: Delivery Slot</div>
+                <div id="detail-live-location-wrap" style="margin-top: 8px; display: none;">
+                  <a id="detail-maps-link" href="#" target="_blank" style="color: var(--accent-cyan); text-decoration: underline; font-weight: 600;">
+                    <i class="fa-solid fa-location-arrow"></i> View Live Campus Coordinates
+                  </a>
+                </div>
+              </div>
+
+              <div style="background: var(--bg-input); padding: 16px; border-radius: var(--radius-md);">
+                <div style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 4px; font-weight: 700;">PARCEL &amp; BILLING</div>
+                <div style="font-weight: 700;" id="detail-tracking-id">Tracking Reference</div>
+                <div style="color: var(--text-secondary);" id="detail-parcels-count">1 Parcel</div>
+                <div style="margin-top: 6px; font-weight: 700; color: var(--primary);" id="detail-total-price">Total: ₹11</div>
+              </div>
+            </div>
+
+            <!-- Interactive 5-Star Rating System (Enabled when order is Delivered) -->
+            <div id="rating-section" style="margin-top: 32px; padding: 24px; border-radius: var(--radius-md); background: rgba(245, 158, 11, 0.08); border: 1px dashed var(--accent-yellow); text-align: center; display: none;">
+              <h3 style="font-size: 1.15rem; font-weight: 800; margin-bottom: 6px;">Rate Your Delivery Experience</h3>
+              <p style="font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 14px;">How was your parcel delivery by <span id="rating-runner-name">Assigned Partner</span>?</p>
+              
+              <div class="star-rating-group" id="star-rating-container">
+                <i class="fa-solid fa-star star-icon" data-star="1" onclick="selectStar(1)"></i>
+                <i class="fa-solid fa-star star-icon" data-star="2" onclick="selectStar(2)"></i>
+                <i class="fa-solid fa-star star-icon" data-star="3" onclick="selectStar(3)"></i>
+                <i class="fa-solid fa-star star-icon" data-star="4" onclick="selectStar(4)"></i>
+                <i class="fa-solid fa-star star-icon" data-star="5" onclick="selectStar(5)"></i>
+              </div>
+
+              <div style="max-width: 450px; margin: 16px auto 0;">
+                <input type="text" id="rating-feedback-input" class="form-input" placeholder="Leave a nice note for the runner (optional)">
+                <button type="button" class="btn-3d btn-3d-orange btn-sm" style="margin-top: 10px;" onclick="submitOrderRating()">
+                  <i class="fa-solid fa-paper-plane"></i> Submit Rating
+                </button>
+              </div>
+
+              <div id="rating-submitted-message" style="margin-top: 10px; font-size: 0.88rem; font-weight: 700; color: var(--accent-green); display: none;">
+                <i class="fa-solid fa-circle-check"></i> Thank you! Your rating has been recorded.
+              </div>
+            </div>
+
+            <!-- Status Timeline List -->
+            <div style="margin-top: 36px;">
+              <h3 style="font-size: 1.1rem; font-weight: 800; margin-bottom: 16px;">Delivery Log &amp; Timeline</h3>
+              <div id="tracking-timeline-list" style="display: flex; flex-direction: column; gap: 12px;">
+                <!-- Populated dynamically -->
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- Not Found Message -->
+      <div id="tracking-not-found" class="glass-card" style="display: none; max-width: 600px; margin: 0 auto; padding: 36px; text-align: center;">
+        <i class="fa-solid fa-circle-exclamation text-rose-500" style="font-size: 3rem; margin-bottom: 16px; display: inline-block;"></i>
+        <h3 style="font-size: 1.4rem; font-weight: 800; margin-bottom: 8px;">Order Not Found</h3>
+        <p style="color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 20px;">
+          We couldn't locate an active delivery with that ID. Please double-check the order code or place a new delivery.
+        </p>
+        <a href="order.html" class="btn-3d btn-3d-orange">Place New Order</a>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Shared Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a href="index.html" class="brand-logo-pill footer-logo-pill" aria-label="LPUcart Home" style="display: inline-flex; margin-bottom: 12px;">
+            <img src="/assets/logo.png" alt="LPUcart Logo" class="footer-brand-logo" width="80" height="60">
+          </a>
+          <p>Campus parcel delivery service bringing online shopping parcels from Uni Mall directly to student hostels.</p>
+        </div>
+        <div>
+          <h4 class="footer-heading">Pages</h4>
+          <ul class="footer-links">
+            <li><a href="order.html">Place Delivery</a></li>
+            <li><a href="track.html">Track Order</a></li>
+            <li><a href="history.html">Order History</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="footer-heading">Support &amp; Help</h4>
+          <ul class="footer-links">
+            <li><a href="how-it-works.html">How It Works</a></li>
+            <li><a href="contact.html">Contact Founder</a></li>
+            <li><a href="order.html">Place Delivery</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="footer-heading">Need Help?</h4>
+          <p style="color: var(--text-secondary); font-size: 0.92rem;">
+            Contact student support: <a href="tel:919680040551" style="color: inherit;" class="support-phone-val">+91 96800 40551</a>.
+          </p>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <div>
+          <div>&copy; 2026 LPUcart Logistics. For LPU Campus Students.</div>
+          <div style="font-size:0.82rem; color:var(--text-muted); margin-top:4px;">Student project demo. Not an official LPU service.</div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="/js/main.js"></script>
+  <script src="/js/pricing.js"></script>
+  <script src="/js/storage.js"></script>
+
+  <script>
+    let currentLoadedOrder = null;
+    let selectedStarRating = 5;
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const queryId = urlParams.get("id");
+
+      if (queryId) {
+        document.getElementById("track-id-input").value = queryId;
+        const myOrders = window.LPU_STORAGE.getMyOrders();
+        const found = myOrders.find(o => o.id.toUpperCase() === queryId.toUpperCase() || (o.trackingId && o.trackingId.toUpperCase() === queryId.toUpperCase()));
+        if (found && found.phone) {
+          const last4 = found.phone.slice(-4);
+          document.getElementById("track-phone-last4").value = last4;
+          loadOrderTracking(queryId, last4);
+        }
+      }
+    });
+
+    function handleTrackSearch(e) {
+      e.preventDefault();
+      const id = document.getElementById("track-id-input").value.trim();
+      const last4 = document.getElementById("track-phone-last4").value.trim();
+      if (!id) {
+        showToast("Please enter an Order ID or Courier Reference", "error");
+        return;
+      }
+      if (!last4 || last4.length !== 4) {
+        showToast("Please enter the 4-digit phone suffix used for the order", "error");
+        return;
+      }
+      loadOrderTracking(id, last4);
+    }
+
+    function loadOrderTracking(orderId, phoneLast4) {
+      const res = window.LPU_STORAGE.verifyTrackAccess(orderId, phoneLast4);
+      const resContainer = document.getElementById("tracking-result-container");
+      const notFound = document.getElementById("tracking-not-found");
+      const notFoundMsg = document.getElementById("tracking-not-found-msg");
+
+      if (!res.success) {
+        resContainer.style.display = "none";
+        notFound.style.display = "block";
+        if (notFoundMsg) notFoundMsg.textContent = res.error;
+        showToast(res.error, "error");
+        return;
+      }
+
+      const order = res.order;
+      currentLoadedOrder = order;
+      notFound.style.display = "none";
+      resContainer.style.display = "block";
+
+      // 1. Header Information
+      document.getElementById("order-id-title").textContent = order.id;
+      document.getElementById("order-placed-time").textContent = `Booked ${new Date(order.createdAt).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}`;
+
+      // 2. Status Badge & Stepper
+      const statusBadge = document.getElementById("order-status-badge");
+      statusBadge.textContent = order.status;
+      statusBadge.className = "status-pill status-" + (order.status || "placed").toLowerCase().replace(/\s+/g, '');
+
+      const fill = document.getElementById("stepper-fill");
+      const nodePicked = document.getElementById("step-node-picked");
+      const nodeOnTheWay = document.getElementById("step-node-ontheway");
+      const nodeDelivered = document.getElementById("step-node-delivered");
+
+      nodePicked.className = "step-node";
+      nodeOnTheWay.className = "step-node";
+      nodeDelivered.className = "step-node";
+
+      if (order.status === "Placed" || order.status === "Assigned") {
+        fill.style.width = "0%";
+      } else if (order.status === "Picked") {
+        fill.style.width = "25%";
+        nodePicked.classList.add("active");
+      } else if (order.status === "On the way") {
+        fill.style.width = "65%";
+        nodePicked.classList.add("completed");
+        nodeOnTheWay.classList.add("active");
+      } else if (order.status === "Delivered" || order.status === "Confirmed") {
+        fill.style.width = "100%";
+        nodePicked.classList.add("completed");
+        nodeOnTheWay.classList.add("completed");
+        nodeDelivered.classList.add("completed");
+      }
+
+      // 3. OTP Box
+      document.getElementById("track-otp-number").textContent = order.otp;
+
+      // 4. Delivery Runner (Shows First Name Only as per PART E.2)
+      document.getElementById("runner-name").textContent = order.runnerFirstName || "Assigned Partner";
+      document.getElementById("runner-vehicle").textContent = "LPUcart Campus Delivery Runner";
+      const runnerPhoneVal = order.runnerPhone || "919680040551";
+      const displayPhone = (runnerPhoneVal === "919680040551") ? "+91 96800 40551" : `+91 ${runnerPhoneVal}`;
+      document.getElementById("runner-phone").textContent = displayPhone;
+
+      const callBtn = document.getElementById("call-runner-btn");
+      if (callBtn) {
+        const cleanPhone = (order.runnerPhone || "").replace(/[^0-9]/g, "");
+        if (cleanPhone.length >= 10) {
+          callBtn.href = `tel:${cleanPhone}`;
+          callBtn.onclick = null;
+        } else {
+          callBtn.href = "#";
+          callBtn.onclick = (e) => {
+            e.preventDefault();
+            window.showToast ? showToast("Contact Phone: " + order.runnerPhone, "info") : alert("Contact: " + order.runnerPhone);
+          };
+        }
+      }
+
+      const waBtn = document.getElementById("whatsapp-runner-btn");
+      if (waBtn) {
+        waBtn.onclick = function () {
+          window.openWhatsAppOrder(order.runnerPhone, order.id, "Student");
+        };
+      }
+
+      // 5. Details Grid (Privacy Preserved: Room number hidden, Phone masked)
+      document.getElementById("detail-student-name").textContent = "Verified Student";
+      document.getElementById("detail-hostel-room").textContent = `${order.hostelBlock} • Room: Masked`;
+      document.getElementById("detail-student-phone").textContent = `Phone: Verified (ends in ${phoneLast4})`;
+
+      const liveLocWrap = document.getElementById("detail-live-location-wrap");
+      if (order.liveLocation && order.liveLocation.mapsUrl) {
+        liveLocWrap.style.display = "block";
+        document.getElementById("detail-maps-link").href = order.liveLocation.mapsUrl;
+      } else {
+        liveLocWrap.style.display = "none";
+      }
+
+      document.getElementById("detail-tracking-id").textContent = `Ref: ${order.trackingId}`;
+      const typeLabel = order.deliveryType === "room" ? "Up to Room" : (order.deliveryType === "live" ? "Live Location" : "Hostel Gate");
+      document.getElementById("detail-parcels-count").textContent = `${order.parcels} Parcel(s) • ${typeLabel}`;
+
+      const totalPrice = (order.priceBreakdown && order.priceBreakdown.total !== undefined) ? order.priceBreakdown.total : 11;
+      document.getElementById("detail-total-price").textContent = `Total: ₹${totalPrice} (${order.paymentStatus || 'Paid'})`;
+
+      // 6. Rating Section (Shown if Delivered or Confirmed)
+      const ratingSection = document.getElementById("rating-section");
+      if (order.status === "Delivered" || order.status === "Confirmed") {
+        ratingSection.style.display = "block";
+        document.getElementById("rating-runner-name").textContent = order.runnerFirstName || "Partner";
+        if (order.rating && order.rating > 0) {
+          selectStar(order.rating);
+          document.getElementById("rating-feedback-input").value = order.feedback || "";
+          document.getElementById("rating-submitted-message").style.display = "block";
+        } else {
+          selectStar(5);
+          document.getElementById("rating-submitted-message").style.display = "none";
+        }
+      } else {
+        ratingSection.style.display = "none";
+      }
+
+      // 7. Timeline List
+      const timelineList = document.getElementById("tracking-timeline-list");
+      if (order.statusHistory && order.statusHistory.length > 0) {
+        timelineList.innerHTML = order.statusHistory.map(item => `
+          <div style="display: flex; gap: 14px; align-items: flex-start; padding: 12px; border-radius: var(--radius-sm); background: var(--bg-input);">
+            <div style="width: 28px; height: 28px; border-radius: 50%; background: rgba(255,107,0,0.15); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 0.8rem; margin-top: 2px;">
+              <i class="fa-solid fa-check"></i>
+            </div>
+            <div>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-weight: 700; font-size: 0.92rem;">${item.status}</span>
+                <span style="font-size: 0.78rem; color: var(--text-muted);">${item.time}</span>
+              </div>
+              <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 2px;">${item.note || ''}</div>
+            </div>
+          </div>
+        `).join("");
+      } else {
+        timelineList.innerHTML = `<div style="color: var(--text-muted); font-size: 0.88rem;">Order initiated.</div>`;
+      }
+    }
+
+    // Interactive Star Rating Logic
+    function selectStar(rating) {
+      selectedStarRating = rating;
+      const stars = document.querySelectorAll("#star-rating-container .star-icon");
+      stars.forEach((s, idx) => {
+        if (idx < rating) {
+          s.classList.add("active");
+        } else {
+          s.classList.remove("active");
+        }
+      });
+    }
+
+    function submitOrderRating() {
+      if (!currentLoadedOrder) return;
+      const feedback = document.getElementById("rating-feedback-input").value;
+      const ok = window.LPU_STORAGE.rateOrder(currentLoadedOrder.id, selectedStarRating, feedback);
+      if (ok) {
+        document.getElementById("rating-submitted-message").style.display = "block";
+        showToast(`Rated ${selectedStarRating} stars! Thank you for the feedback.`, "success");
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Delivery Partner Portal - LPUcart</title>
+
+  <!-- Favicon & Touch Icons -->
+  <link rel="icon" href="/favicon.png" type="image/png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Main Stylesheet -->
+  <link rel="stylesheet" href="/css/style.css">
+
+  <style>
+    .portal-nav-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--accent-green);
+      border: 1px solid var(--accent-green);
+    }
+    .partner-modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .partner-modal-backdrop.show {
+      display: flex;
+    }
+    .partner-modal-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius-md);
+      padding: 28px;
+      max-width: 480px;
+      width: 100%;
+      box-shadow: var(--shadow-3d);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="navbar">
+    <div class="container nav-container">
+      <div style="display: flex; align-items: center; gap: 14px;">
+        <a href="index.html" class="nav-logo brand-logo-pill" aria-label="LPUcart Home">
+          <img src="/assets/logo.png" alt="LPUcart Logo" class="nav-brand-logo" width="64" height="48">
+        </a>
+        <span class="portal-nav-badge"><i class="fa-solid fa-motorcycle"></i> Partner Portal</span>
+      </div>
+
+      <div class="nav-actions">
+        <button class="theme-toggle-btn" onclick="toggleTheme()" aria-label="Toggle Theme">
+          <i class="fa-solid fa-sun"></i>
+        </button>
+        <button id="partner-logout-btn" class="btn-3d btn-3d-outline btn-sm" onclick="handlePartnerLogout()" style="display: none;">
+          <i class="fa-solid fa-arrow-right-from-bracket"></i> Logout
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="section-py">
+    <div class="container">
+
+      <!-- Notice Banner -->
+      <div class="glass-card" style="padding: 12px 20px; margin-bottom: 24px; background: rgba(255, 107, 0, 0.1); border: 1px solid var(--primary); display: flex; align-items: center; gap: 12px; font-size: 0.9rem; border-radius: var(--radius-sm);">
+        <i class="fa-solid fa-circle-info text-amber-500" style="font-size: 1.1rem;"></i>
+        <span><strong>Notice:</strong> Demo mode: data is stored in this browser only.</span>
+      </div>
+
+      <!-- 1. LOGIN CONTAINER -->
+      <div id="login-container" style="max-width: 480px; margin: 40px auto 80px;">
+        <div class="glass-card form-card tilt-card" style="padding: 38px;">
+          <div class="text-center" style="margin-bottom: 24px;">
+            <div class="brand-logo-pill" style="display: inline-flex; margin-bottom: 14px;">
+              <img src="/assets/logo.png" alt="LPUcart Logo" class="login-brand-logo" width="107" height="80">
+            </div>
+            <h1 style="font-size: 1.6rem; font-weight: 800;">Delivery Partner Login</h1>
+            <p style="color: var(--text-secondary); font-size: 0.88rem;">Assigned Orders &amp; OTP Handover</p>
+          </div>
+
+          <form onsubmit="handlePartnerLogin(event)">
+            <div style="display: flex; flex-direction: column; gap: 18px;">
+              <div class="form-group">
+                <label class="form-label" for="login-username"><i class="fa-solid fa-user"></i> Username</label>
+                <input type="text" id="login-username" class="form-input" placeholder="Enter runner username" required autocomplete="username">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="login-password"><i class="fa-solid fa-lock"></i> Password</label>
+                <input type="password" id="login-password" class="form-input" placeholder="••••••••" required autocomplete="current-password">
+              </div>
+
+              <button type="submit" id="partner-login-btn" class="btn-3d btn-3d-orange btn-lg btn-full" style="margin-top: 8px;">
+                <i class="fa-solid fa-right-to-bracket"></i> Login to Dashboard
+              </button>
+            </div>
+          </form>
+
+          <div id="partner-lockout-msg" style="display: none; margin-top: 16px; color: var(--accent-red); font-size: 0.85rem; text-align: center;"></div>
+        </div>
+      </div>
+
+      <!-- 2. FORCE PASSWORD CHANGE MODAL -->
+      <div id="partner-force-password-modal" class="partner-modal-backdrop">
+        <div class="partner-modal-box">
+          <div style="text-align: center; margin-bottom: 18px;">
+            <i class="fa-solid fa-key text-amber-500" style="font-size: 2.2rem; margin-bottom: 8px;"></i>
+            <h2 style="font-size: 1.35rem; font-weight: 800;">Update Temporary Password</h2>
+            <p style="color: var(--text-secondary); font-size: 0.85rem;">Please set a new private password before accessing your delivery dashboard.</p>
+          </div>
+          <form onsubmit="handlePartnerForcePasswordSubmit(event)">
+            <div style="display: flex; flex-direction: column; gap: 14px;">
+              <div class="form-group">
+                <label class="form-label">Temporary Password *</label>
+                <input type="password" id="partner-force-current" class="form-input" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">New Password (min 6 chars) *</label>
+                <input type="password" id="partner-force-new" class="form-input" minlength="6" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Confirm New Password *</label>
+                <input type="password" id="partner-force-confirm" class="form-input" minlength="6" required>
+              </div>
+              <button type="submit" class="btn-3d btn-3d-orange btn-md btn-full" style="margin-top: 8px;">
+                Save New Password &amp; Continue
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- 3. PARTNER DASHBOARD CONTAINER -->
+      <div id="dashboard-container" style="display: none;">
+        
+        <!-- Runner Profile Header Strip -->
+        <div class="glass-card tilt-card" style="padding: 24px 32px; margin-bottom: 30px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px;">
+          <div style="display: flex; align-items: center; gap: 16px;">
+            <div style="width: 58px; height: 58px; border-radius: 50%; background: rgba(16, 185, 129, 0.15); color: var(--accent-green); display: flex; align-items: center; justify-content: center; font-size: 1.6rem; border: 2px solid var(--accent-green);">
+              <i class="fa-solid fa-person-biking"></i>
+            </div>
+            <div>
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <h2 style="font-size: 1.45rem; font-weight: 800; margin: 0;" id="partner-display-name">Runner</h2>
+                <span class="status-pill status-delivered"><i class="fa-solid fa-circle-check"></i> On Duty</span>
+              </div>
+              <div style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 4px;">
+                Assigned Parcels Only • OTP Verification Protected
+              </div>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 12px; align-items: center;">
+            <button class="btn-3d btn-3d-outline btn-sm" onclick="openPartnerPasswordChangeModal()">
+              <i class="fa-solid fa-lock"></i> Change Password
+            </button>
+          </div>
+        </div>
+
+        <!-- Metric Counter Cards -->
+        <div class="dashboard-grid" style="margin-bottom: 28px;">
+          <div class="glass-card tilt-card dash-stat-card">
+            <div class="dash-stat-icon" style="background: rgba(255, 107, 0, 0.15); color: var(--primary);">
+              <i class="fa-solid fa-boxes-packing"></i>
+            </div>
+            <div>
+              <div style="font-size: 1.8rem; font-weight: 900;" id="metric-active-count">0</div>
+              <div style="font-size: 0.85rem; color: var(--text-secondary);">Active Assigned</div>
+            </div>
+          </div>
+
+          <div class="glass-card tilt-card dash-stat-card">
+            <div class="dash-stat-icon" style="background: rgba(6, 182, 212, 0.15); color: var(--accent-cyan);">
+              <i class="fa-solid fa-route"></i>
+            </div>
+            <div>
+              <div style="font-size: 1.8rem; font-weight: 900;" id="metric-ontheway-count">0</div>
+              <div style="font-size: 0.85rem; color: var(--text-secondary);">On The Way</div>
+            </div>
+          </div>
+
+          <div class="glass-card tilt-card dash-stat-card">
+            <div class="dash-stat-icon" style="background: rgba(16, 185, 129, 0.15); color: var(--accent-green);">
+              <i class="fa-solid fa-circle-check"></i>
+            </div>
+            <div>
+              <div style="font-size: 1.8rem; font-weight: 900;" id="metric-delivered-count">0</div>
+              <div style="font-size: 0.85rem; color: var(--text-secondary);">Completed Deliveries</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Orders Section -->
+        <div class="glass-card tilt-card" style="padding: 28px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; margin-bottom: 20px;">
+            <h2 style="font-size: 1.3rem; font-weight: 800;">
+              <i class="fa-solid fa-clipboard-list text-primary"></i> My Assigned Deliveries
+            </h2>
+            <div style="display: flex; gap: 8px;">
+              <button class="btn-3d btn-3d-orange btn-sm" id="btn-subfilter-active" onclick="setRunnerSubfilter('active')">Active</button>
+              <button class="btn-3d btn-3d-outline btn-sm" id="btn-subfilter-completed" onclick="setRunnerSubfilter('completed')">Completed</button>
+            </div>
+          </div>
+
+          <div id="partner-orders-container" style="display: flex; flex-direction: column; gap: 16px;">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+
+  <!-- PARTNER VOLUNTARY CHANGE PASSWORD MODAL -->
+  <div id="partner-change-password-modal" class="partner-modal-backdrop">
+    <div class="partner-modal-box">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
+        <h3 style="font-size: 1.25rem; font-weight: 800;"><i class="fa-solid fa-key text-primary"></i> Change Password</h3>
+        <button type="button" onclick="closePartnerPasswordChangeModal()" style="background: none; border: none; color: var(--text-muted); font-size: 1.2rem; cursor: pointer;">&times;</button>
+      </div>
+
+      <form onsubmit="handlePartnerVoluntaryPasswordChange(event)">
+        <div style="display: flex; flex-direction: column; gap: 14px;">
+          <div class="form-group">
+            <label class="form-label">Current Password *</label>
+            <input type="password" id="partner-vol-current" class="form-input" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">New Password (min 6 chars) *</label>
+            <input type="password" id="partner-vol-new" class="form-input" minlength="6" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Confirm New Password *</label>
+            <input type="password" id="partner-vol-confirm" class="form-input" minlength="6" required>
+          </div>
+          <div style="display: flex; gap: 10px; margin-top: 8px;">
+            <button type="button" class="btn-3d btn-3d-outline btn-sm" style="flex: 1;" onclick="closePartnerPasswordChangeModal()">Cancel</button>
+            <button type="submit" class="btn-3d btn-3d-orange btn-sm" style="flex: 1;">Update Password</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Shared Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <div>
+          <div>&copy; 2026 LPUcart Logistics. Delivery Partner Operations.</div>
+          <div style="font-size:0.82rem; color:var(--text-muted); margin-top:4px;">Student project demo. Not an official LPU service.</div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="/js/main.js"></script>
+  <script src="/js/pricing.js"></script>
+  <script src="/js/storage.js"></script>
+
+  <script>
+    let currentPartnerSession = null;
+    let currentSubfilter = "active"; // "active" | "completed"
+
+    document.addEventListener("DOMContentLoaded", () => {
+      checkPartnerSession();
+    });
+
+    function checkPartnerSession() {
+      const session = window.LPU_STORAGE.getPartnerSession();
+      const loginBox = document.getElementById("login-container");
+      const dashBox = document.getElementById("dashboard-container");
+      const logoutBtn = document.getElementById("partner-logout-btn");
+
+      if (session) {
+        currentPartnerSession = session;
+        loginBox.style.display = "none";
+        dashBox.style.display = "block";
+        logoutBtn.style.display = "inline-flex";
+        document.getElementById("partner-display-name").textContent = session.name || session.username;
+
+        if (session.mustChangePassword) {
+          document.getElementById("partner-force-password-modal").classList.add("show");
+        } else {
+          document.getElementById("partner-force-password-modal").classList.remove("show");
+        }
+
+        renderPartnerDashboard();
+      } else {
+        currentPartnerSession = null;
+        loginBox.style.display = "block";
+        dashBox.style.display = "none";
+        logoutBtn.style.display = "none";
+        document.getElementById("partner-force-password-modal").classList.remove("show");
+      }
+    }
+
+    async function handlePartnerLogin(e) {
+      e.preventDefault();
+      const u = document.getElementById("login-username").value.trim();
+      const p = document.getElementById("login-password").value;
+      const btn = document.getElementById("partner-login-btn");
+      btn.disabled = true;
+
+      const res = await window.LPU_STORAGE.partnerLogin(u, p);
+      btn.disabled = false;
+
+      if (res.success) {
+        showToast("Logged in as Delivery Partner!", "success");
+        checkPartnerSession();
+      } else {
+        showToast(res.error, "error");
+        const msgEl = document.getElementById("partner-lockout-msg");
+        if (res.error.includes("locked")) {
+          msgEl.textContent = res.error;
+          msgEl.style.display = "block";
+        }
+      }
+    }
+
+    function handlePartnerLogout() {
+      window.LPU_STORAGE.partnerLogout();
+      showToast("Logged out of partner portal", "info");
+      checkPartnerSession();
+    }
+
+    async function handlePartnerForcePasswordSubmit(e) {
+      e.preventDefault();
+      if (!currentPartnerSession) return;
+      const cur = document.getElementById("partner-force-current").value;
+      const n1 = document.getElementById("partner-force-new").value;
+      const n2 = document.getElementById("partner-force-confirm").value;
+
+      if (n1 !== n2) {
+        showToast("New passwords do not match!", "error");
+        return;
+      }
+
+      const res = await window.LPU_STORAGE.partnerChangePassword(currentPartnerSession.partnerId, cur, n1);
+      if (res.success) {
+        showToast("Password updated successfully!", "success");
+        document.getElementById("partner-force-password-modal").classList.remove("show");
+        checkPartnerSession();
+      } else {
+        showToast(res.error, "error");
+      }
+    }
+
+    function openPartnerPasswordChangeModal() {
+      document.getElementById("partner-change-password-modal").classList.add("show");
+    }
+
+    function closePartnerPasswordChangeModal() {
+      document.getElementById("partner-change-password-modal").classList.remove("show");
+    }
+
+    async function handlePartnerVoluntaryPasswordChange(e) {
+      e.preventDefault();
+      if (!currentPartnerSession) return;
+      const cur = document.getElementById("partner-vol-current").value;
+      const n1 = document.getElementById("partner-vol-new").value;
+      const n2 = document.getElementById("partner-vol-confirm").value;
+
+      if (n1 !== n2) {
+        showToast("New passwords do not match!", "error");
+        return;
+      }
+
+      const res = await window.LPU_STORAGE.partnerChangePassword(currentPartnerSession.partnerId, cur, n1);
+      if (res.success) {
+        showToast("Password updated successfully!", "success");
+        closePartnerPasswordChangeModal();
+        e.target.reset();
+      } else {
+        showToast(res.error, "error");
+      }
+    }
+
+    function setRunnerSubfilter(filter) {
+      currentSubfilter = filter;
+      document.getElementById("btn-subfilter-active").className = (filter === "active") ? "btn-3d btn-3d-orange btn-sm" : "btn-3d btn-3d-outline btn-sm";
+      document.getElementById("btn-subfilter-completed").className = (filter === "completed") ? "btn-3d btn-3d-orange btn-sm" : "btn-3d btn-3d-outline btn-sm";
+      renderPartnerDashboard();
+    }
+
+    function renderPartnerDashboard() {
+      if (!currentPartnerSession) return;
+      const partnerId = currentPartnerSession.partnerId;
+      const allOrders = window.LPU_STORAGE.getOrders();
+
+      // PART D.2: Partner sees ONLY orders assigned to them!
+      const myOrders = allOrders.filter(o => o.partnerId === partnerId);
+
+      const activeOrders = myOrders.filter(o => o.status === "Assigned" || o.status === "Picked" || o.status === "On the way");
+      const onTheWayOrders = myOrders.filter(o => o.status === "On the way");
+      const completedOrders = myOrders.filter(o => o.status === "Delivered" || o.status === "Confirmed");
+
+      document.getElementById("metric-active-count").textContent = activeOrders.length;
+      document.getElementById("metric-ontheway-count").textContent = onTheWayOrders.length;
+      document.getElementById("metric-delivered-count").textContent = completedOrders.length;
+
+      const container = document.getElementById("partner-orders-container");
+      const displayList = (currentSubfilter === "active") ? activeOrders : completedOrders;
+
+      if (displayList.length === 0) {
+        container.innerHTML = `<div style="text-align:center; padding: 36px; color: var(--text-muted); background: var(--bg-input); border-radius: var(--radius-sm);">No ${currentSubfilter} orders assigned to you right now.</div>`;
+        return;
+      }
+
+      container.innerHTML = displayList.map(o => {
+        const isCompleted = (o.status === "Delivered" || o.status === "Confirmed");
+        
+        // PART D.3: Mask phone after delivery
+        const studentPhoneDisplay = isCompleted 
+          ? `+91 ******${(o.phone || '').slice(-4)}`
+          : `+91 ${o.phone}`;
+
+        return `
+          <div class="glass-card" style="padding: 22px; border-left: 4px solid ${isCompleted ? 'var(--accent-green)' : 'var(--primary)'};">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px; margin-bottom:14px;">
+              <div>
+                <span class="status-pill status-${o.status.toLowerCase().replace(/\s+/g, '')}">${o.status}</span>
+                <span style="font-weight:800; font-size:1.15rem; margin-left:8px; color:var(--text-primary);">${o.id}</span>
+              </div>
+              <div style="font-size:0.85rem; color:var(--text-secondary);">
+                Slot: <strong>${o.timeSlot}</strong>
+              </div>
+            </div>
+
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; font-size: 0.9rem; margin-bottom: 16px;">
+              <div>
+                <div style="color:var(--text-muted); font-size:0.78rem; font-weight:700;">STUDENT &amp; DESTINATION</div>
+                <div style="font-weight:700;">${o.name}</div>
+                <div style="color:var(--text-secondary);">${o.hostelBlock} • Room: ${isCompleted ? 'Masked' : o.roomNo}</div>
+                <div style="color:var(--text-secondary);">Phone: ${studentPhoneDisplay}</div>
+              </div>
+
+              <div>
+                <div style="color:var(--text-muted); font-size:0.78rem; font-weight:700;">PARCEL DETAILS</div>
+                <div>Courier Ref: <code>${o.trackingId}</code></div>
+                <div>${o.parcels} parcel(s) • ${o.deliveryType === 'room' ? 'Room Delivery' : (o.deliveryType === 'live' ? 'Live Coordinates' : 'Hostel Gate')}</div>
+                <div style="font-weight:700; color:var(--accent-green); margin-top:2px;">₹${o.priceBreakdown ? o.priceBreakdown.total : 11} (${o.paymentStatus})</div>
+              </div>
+
+              ${(!isCompleted && o.liveLocation && o.liveLocation.mapsUrl) ? `
+                <div>
+                  <div style="color:var(--text-muted); font-size:0.78rem; font-weight:700;">LIVE PIN LOCATION</div>
+                  <a href="${o.liveLocation.mapsUrl}" target="_blank" style="color:var(--accent-cyan); font-weight:700; text-decoration:underline; display:inline-flex; align-items:center; gap:6px; margin-top:4px;">
+                    <i class="fa-solid fa-location-arrow"></i> Open Google Maps Pin
+                  </a>
+                </div>
+              ` : ''}
+            </div>
+
+            ${!isCompleted ? `
+              <div style="border-top:1px solid var(--border-subtle); padding-top:14px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+                <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                  ${o.status === "Assigned" ? `
+                    <button class="btn-3d btn-3d-orange btn-sm" onclick="advanceOrderStatus('${o.id}', 'Picked')">
+                      <i class="fa-solid fa-box-archive"></i> Mark Picked from Uni Mall
+                    </button>
+                  ` : ''}
+
+                  ${o.status === "Picked" ? `
+                    <button class="btn-3d btn-3d-orange btn-sm" onclick="advanceOrderStatus('${o.id}', 'On the way')">
+                      <i class="fa-solid fa-motorcycle"></i> Start Journey to Hostel
+                    </button>
+                  ` : ''}
+
+                  ${o.status === "On the way" ? `
+                    <div style="display:flex; align-items:center; gap:8px;">
+                      <input type="text" id="otp-input-${o.id}" class="form-input" placeholder="4-Digit Student OTP" maxlength="4" style="width:160px; padding:6px 12px; font-weight:700; text-align:center;">
+                      <button class="btn-3d btn-3d-orange btn-sm" onclick="completeOtpDelivery('${o.id}')">
+                        <i class="fa-solid fa-key"></i> Verify OTP &amp; Deliver
+                      </button>
+                    </div>
+                  ` : ''}
+                </div>
+              </div>
+            ` : `
+              <div style="font-size:0.84rem; color:var(--text-muted); border-top:1px solid var(--border-subtle); padding-top:10px;">
+                ${o.status === 'Delivered' 
+                  ? '<i class="fa-solid fa-hourglass-half text-amber-500"></i> Handed over with OTP. Waiting for owner confirmation.'
+                  : '<i class="fa-solid fa-circle-check text-emerald-500"></i> Confirmed &amp; Completed.'}
+              </div>
+            `}
+          </div>
+        `;
+      }).join("");
+    }
+
+    function advanceOrderStatus(orderId, newStatus) {
+      if (!currentPartnerSession) return;
+      const res = window.LPU_STORAGE.updatePartnerOrderStatus(orderId, newStatus, null, currentPartnerSession.partnerId);
+      if (res.success) {
+        showToast(res.message, "success");
+        renderPartnerDashboard();
+      } else {
+        showToast(res.message, "error");
+      }
+    }
+
+    function completeOtpDelivery(orderId) {
+      if (!currentPartnerSession) return;
+      const input = document.getElementById(`otp-input-${orderId}`);
+      if (!input || !input.value.trim()) {
+        showToast("Please enter the 4-digit student OTP", "error");
+        return;
+      }
+
+      const res = window.LPU_STORAGE.updatePartnerOrderStatus(orderId, "Delivered", input.value.trim(), currentPartnerSession.partnerId);
+      if (res.success) {
+        showToast(res.message, "success");
+        renderPartnerDashboard();
+      } else {
+        showToast(res.message, "error");
+      }
+    }
+  </script>
+</body>
+</html>
+

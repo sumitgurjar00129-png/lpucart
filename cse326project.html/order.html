@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order Delivery - LPUcart - Uni Mall se Hostel Parcel Delivery</title>
+  <meta name="description" content="Place a campus parcel delivery order from Uni Mall to your hostel gate, room, or live GPS coordinates. Fast, transparent pricing starting at ₹11.">
+  <link rel="canonical" href="https://lpucart-delivery.netlify.app/order">
+
+  <!-- Favicon & Touch Icons -->
+  <link rel="icon" href="/favicon.png" type="image/png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="LPUcart">
+  <meta property="og:url" content="https://lpucart-delivery.netlify.app/order">
+  <meta property="og:title" content="Order Delivery - LPUcart - Uni Mall se Hostel Parcel Delivery">
+  <meta property="og:description" content="Place a campus parcel delivery order from Uni Mall to your hostel gate, room, or live GPS coordinates. Fast, transparent pricing starting at ₹11.">
+  <meta property="og:image" content="https://lpucart-delivery.netlify.app/assets/logo.png">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Order Delivery - LPUcart - Uni Mall se Hostel Parcel Delivery">
+  <meta name="twitter:description" content="Place a campus parcel delivery order from Uni Mall to your hostel gate, room, or live GPS coordinates. Fast, transparent pricing starting at ₹11.">
+  <meta name="twitter:image" content="https://lpucart-delivery.netlify.app/assets/logo.png">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Main Stylesheet -->
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+  <!-- Shared Navbar -->
+  <header class="navbar">
+    <div class="container nav-container">
+      <a href="index.html" class="nav-logo brand-logo-pill" aria-label="LPUcart Home">
+        <img src="/assets/logo.png" alt="LPUcart Logo" class="nav-brand-logo" width="64" height="48">
+      </a>
+
+      <nav class="nav-links">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="order.html" class="nav-link active">Order Now</a>
+        <a href="track.html" class="nav-link">Track Order</a>
+        <a href="history.html" class="nav-link">Order History</a>
+        <a href="how-it-works.html" class="nav-link">How It Works</a>
+        <a href="contact.html" class="nav-link">Contact</a>
+      </nav>
+
+      <div class="nav-actions">
+        <button class="theme-toggle-btn" onclick="toggleTheme()" aria-label="Toggle Theme">
+          <i class="fa-solid fa-sun"></i>
+        </button>
+        <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Open Mobile Menu">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Off-Canvas Drawer -->
+  <div class="mobile-nav-overlay" id="mobile-nav-overlay"></div>
+  <aside class="mobile-nav-menu" id="mobile-nav-menu">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+      <a href="index.html" class="brand-logo-pill" aria-label="LPUcart Home">
+        <img src="/assets/logo.png" alt="LPUcart Logo" class="nav-brand-logo" width="48" height="36">
+      </a>
+      <button class="theme-toggle-btn" onclick="toggleTheme()"><i class="fa-solid fa-sun"></i></button>
+    </div>
+    <a href="index.html" class="nav-link"><i class="fa-solid fa-house"></i> Home</a>
+    <a href="order.html" class="nav-link active"><i class="fa-solid fa-cart-shopping"></i> Order Now</a>
+    <a href="track.html" class="nav-link"><i class="fa-solid fa-location-crosshairs"></i> Track Order</a>
+    <a href="history.html" class="nav-link"><i class="fa-solid fa-clock-rotate-left"></i> Order History</a>
+    <a href="how-it-works.html" class="nav-link"><i class="fa-solid fa-circle-question"></i> How It Works</a>
+    <a href="contact.html" class="nav-link"><i class="fa-solid fa-envelope"></i> Contact Us</a>
+  </aside>
+
+  <!-- MAIN ORDER PAGE CONTENT -->
+  <main class="section-py">
+    <div class="container">
+      <div class="section-header text-center">
+        <div class="section-badge"><i class="fa-solid fa-bolt"></i> Fast Uni Mall Dispatch</div>
+        <h1 class="section-title">Book Parcel Delivery</h1>
+        <p class="section-desc">Have parcels waiting at Uni Mall? Fill in the details below and an LPUcart runner will bring them to you.</p>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1.4fr 1fr; gap: 32px; align-items: start;">
+        <!-- Left Column: Order Form -->
+        <div class="glass-card form-card tilt-card" style="max-width: 100%; margin: 0;">
+          <form id="order-form" onsubmit="handleOrderSubmit(event)">
+            <div class="form-grid">
+              
+              <!-- Student Full Name -->
+              <div class="form-group">
+                <label class="form-label" for="student-name">
+                  <i class="fa-solid fa-user text-amber-500"></i> Student Full Name *
+                </label>
+                <input type="text" id="student-name" class="form-input" placeholder="e.g. Aman Verma" required>
+              </div>
+
+              <!-- Phone Number -->
+              <div class="form-group">
+                <label class="form-label" for="student-phone">
+                  <i class="fa-solid fa-phone text-amber-500"></i> Mobile Number (10 Digits) *
+                </label>
+                <input type="tel" id="student-phone" class="form-input" placeholder="e.g. 9812345678" pattern="[0-9]{10}" maxlength="10" required>
+              </div>
+
+              <!-- Delivery Destination Type Selector (3D Radio Cards) -->
+              <div class="form-group form-col-full">
+                <label class="form-label">
+                  <i class="fa-solid fa-route text-amber-500"></i> Select Delivery Type *
+                </label>
+                <div class="radio-cards-grid">
+                  <!-- Option 1: Hostel Gate -->
+                  <label class="radio-card-label">
+                    <input type="radio" name="delivery-type" value="gate" checked onchange="updateLivePricing()">
+                    <div class="radio-card-content">
+                      <div class="radio-card-title">
+                        <span>Hostel Gate</span>
+                        <span style="color: var(--primary);">₹11 / ₹22</span>
+                      </div>
+                      <div class="radio-card-desc">Picked from Uni Mall &amp; delivered to hostel main security gate.</div>
+                    </div>
+                  </label>
+
+                  <!-- Option 2: Up to Room -->
+                  <label class="radio-card-label">
+                    <input type="radio" name="delivery-type" value="room" onchange="updateLivePricing()">
+                    <div class="radio-card-content">
+                      <div class="radio-card-title">
+                        <span>Up to Room</span>
+                        <span style="color: var(--primary);">+₹10</span>
+                      </div>
+                      <div class="radio-card-desc">Runner brings parcels straight upstairs to your hostel room door.</div>
+                    </div>
+                  </label>
+
+                  <!-- Option 3: Live Location -->
+                  <label class="radio-card-label">
+                    <input type="radio" name="delivery-type" value="live" onchange="updateLivePricing()">
+                    <div class="radio-card-content">
+                      <div class="radio-card-title">
+                        <span>Live Location</span>
+                        <span style="color: var(--primary);">₹19 Flat</span>
+                      </div>
+                      <div class="radio-card-desc">Outside hostel (canteen, lawn, library) via GPS coordinates.</div>
+                    </div>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Hostel Block Selection (Populated dynamically from HOSTELS config) -->
+              <div class="form-group" id="hostel-block-group">
+                <label class="form-label" for="hostel-block">
+                  <i class="fa-solid fa-building text-amber-500"></i> Hostel / Campus Building *
+                </label>
+                <select id="hostel-block" class="form-select" required>
+                  <!-- Populated from js/main.js HOSTELS config -->
+                </select>
+              </div>
+
+              <!-- Custom Building Name/Number Field (Shown when "Other building" is selected) -->
+              <div class="form-group form-col-full" id="custom-hostel-group" style="display: none;">
+                <label class="form-label" for="custom-hostel-input">
+                  <i class="fa-solid fa-pen text-amber-500"></i> Specify Other Building Name / Number *
+                </label>
+                <input type="text" id="custom-hostel-input" class="form-input" placeholder="e.g. Uni-Hotel Room 304, Staff Qtr Block 5, Central Library Lawn">
+                <small style="color: var(--text-muted); font-size: 0.8rem;">Enter your building name or department clearly for the delivery runner.</small>
+              </div>
+
+              <!-- Room Number -->
+              <div class="form-group" id="room-number-group">
+                <label class="form-label" for="room-number">
+                  <i class="fa-solid fa-door-closed text-amber-500"></i> Room Number *
+                </label>
+                <input type="text" id="room-number" class="form-input" placeholder="e.g. 412-B, 3rd Floor" required>
+              </div>
+
+              <!-- Live Location Trigger Box (Only shown if Live Location selected) -->
+              <div class="form-group form-col-full" id="live-location-box" style="display: none;">
+                <div class="glass-card" style="padding: 18px; border: 1px dashed var(--accent-cyan); background: rgba(6, 182, 212, 0.08);">
+                  <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+                    <div>
+                      <div style="font-weight: 700; color: var(--accent-cyan);"><i class="fa-solid fa-location-crosshairs"></i> Campus GPS Pin Required</div>
+                      <div id="live-location-status" style="font-size: 0.88rem; color: var(--text-secondary);">Click below to detect your current position on campus.</div>
+                    </div>
+                    <button type="button" class="btn-3d btn-3d-blue btn-sm" onclick="fetchLiveCoordinates()">
+                      <i class="fa-solid fa-crosshairs"></i> Get Live Location
+                    </button>
+                  </div>
+                  <input type="hidden" id="live-coords-lat">
+                  <input type="hidden" id="live-coords-lng">
+                  <input type="hidden" id="live-coords-maps">
+                  <div id="live-maps-preview" style="margin-top: 10px; font-size: 0.85rem; display: none;"></div>
+                </div>
+              </div>
+
+              <!-- Parcel Count -->
+              <div class="form-group">
+                <label class="form-label" for="parcel-count">
+                  <i class="fa-solid fa-cubes text-amber-500"></i> Number of Parcels *
+                </label>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <button type="button" class="btn-3d btn-3d-outline btn-sm" onclick="adjustParcelCount(-1)">-</button>
+                  <input type="number" id="parcel-count" class="form-input" value="1" min="1" max="15" style="text-align:center; font-weight:700;" oninput="updateLivePricing()" required>
+                  <button type="button" class="btn-3d btn-3d-outline btn-sm" onclick="adjustParcelCount(1)">+</button>
+                </div>
+                <small style="color: var(--text-muted); font-size: 0.8rem;">1 parcel = ₹11 • 2+ parcels = ₹22</small>
+              </div>
+
+              <!-- Time Slot (Populated dynamically) -->
+              <div class="form-group">
+                <label class="form-label" for="time-slot">
+                  <i class="fa-solid fa-clock text-amber-500"></i> Delivery Time Slot *
+                </label>
+                <select id="time-slot" class="form-select" required>
+                  <!-- Populated from js/pricing.js -->
+                </select>
+              </div>
+
+              <!-- Courier Tracking ID / Parcel ID -->
+              <div class="form-group form-col-full">
+                <label class="form-label" for="tracking-id">
+                  <i class="fa-solid fa-barcode text-amber-500"></i> Parcel Tracking ID or Order ID *
+                </label>
+                <input type="text" id="tracking-id" class="form-input" placeholder="e.g. Amazon: 403-1284920-118274 or Flipkart / Myntra ID" required>
+                <small style="color: var(--text-muted); font-size: 0.82rem;">This helps the runner locate your specific package quickly at Uni Mall.</small>
+              </div>
+
+              <!-- Parcel Photo Upload (Stored as Base64 in localStorage) -->
+              <div class="form-group form-col-full">
+                <label class="form-label">
+                  <i class="fa-solid fa-camera text-amber-500"></i> Upload Courier Message / Parcel Screenshot (Optional)
+                </label>
+                <label class="file-upload-box">
+                  <input type="file" id="parcel-photo-input" accept="image/*" onchange="handlePhotoUpload(event)">
+                  <i class="fa-solid fa-cloud-arrow-up" style="font-size: 2rem; color: var(--primary); margin-bottom: 8px;"></i>
+                  <div style="font-weight: 700; font-size: 0.95rem;">Tap to upload or take photo</div>
+                  <div style="font-size: 0.82rem; color: var(--text-secondary);">Supports JPG, PNG (Saved locally for runner)</div>
+                </label>
+                <div class="upload-preview-container" id="upload-preview-container">
+                  <img id="upload-preview-img" class="upload-preview-img" alt="Parcel Preview">
+                  <div style="flex-grow: 1;">
+                    <div id="upload-preview-name" style="font-size: 0.85rem; font-weight: 700;">image.jpg</div>
+                    <button type="button" class="btn-3d btn-3d-outline btn-sm" style="margin-top: 4px; padding: 4px 10px; font-size: 0.75rem;" onclick="removeUploadedPhoto()">Remove</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Payment Method Selection -->
+              <div class="form-group form-col-full">
+                <label class="form-label">
+                  <i class="fa-solid fa-credit-card text-amber-500"></i> Payment Mode *
+                </label>
+                <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+                  <label class="radio-card-label" style="flex: 1; min-width: 140px;">
+                    <input type="radio" name="payment-method" value="UPI" checked onchange="togglePaymentDisplay()">
+                    <div class="radio-card-content">
+                      <div class="radio-card-title"><i class="fa-solid fa-qrcode text-primary"></i> UPI QR Code</div>
+                      <div class="radio-card-desc">Scan &amp; pay via PhonePe / GPay / Paytm</div>
+                    </div>
+                  </label>
+
+                  <label class="radio-card-label" style="flex: 1; min-width: 140px;">
+                    <input type="radio" name="payment-method" value="COD" onchange="togglePaymentDisplay()">
+                    <div class="radio-card-content">
+                      <div class="radio-card-title"><i class="fa-solid fa-hand-holding-dollar text-emerald-400"></i> Cash on Delivery</div>
+                      <div class="radio-card-desc">Pay cash to runner at the time of delivery</div>
+                    </div>
+                  </label>
+                </div>
+              </div>
+
+              <!-- UPI QR Code Showcase Preview (Shown if UPI selected) -->
+              <div class="form-group form-col-full" id="upi-display-card" style="text-align: center; padding: 18px; border-radius: var(--radius-md); background: rgba(255, 107, 0, 0.05); border: 1px solid var(--border-card);">
+                <div style="font-weight: 700; margin-bottom: 8px;">Instant UPI Scan &amp; Pay</div>
+                <img src="/assets/upi-qr.svg" alt="UPI QR" style="width: 170px; margin: 0 auto 6px; border-radius: 12px; box-shadow: var(--shadow-3d);">
+                <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px;">Demo QR - no real payment</div>
+                <div style="font-size: 0.84rem; color: var(--text-secondary);">Scan via any UPI app or complete payment right after placing.</div>
+              </div>
+
+            </div>
+
+            <!-- Submit Button -->
+            <div style="margin-top: 32px;">
+              <button type="submit" class="btn-3d btn-3d-orange btn-lg btn-full" id="submit-order-btn">
+                <i class="fa-solid fa-paper-plane"></i> Confirm Delivery &amp; Get 4-Digit OTP
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Right Column: Real-time Price Calculator & Promo Code -->
+        <div style="display: flex; flex-direction: column; gap: 24px; position: sticky; top: 96px;">
+          
+          <!-- Live Price Breakdown Card -->
+          <div class="glass-card price-breakdown-card tilt-card">
+            <div class="tilt-inner">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
+                <h3 style="font-size: 1.15rem; font-weight: 800; display: flex; align-items: center; gap: 8px;">
+                  <i class="fa-solid fa-receipt text-primary"></i> Live Price Breakdown
+                </h3>
+                <span class="status-pill status-picked" style="font-size: 0.72rem;">INSTANT QUOTE</span>
+              </div>
+
+              <div class="breakdown-row">
+                <span id="breakdown-base-label">1 Parcel to Hostel Gate:</span>
+                <span id="breakdown-base-val">₹11</span>
+              </div>
+
+              <div class="breakdown-row" id="breakdown-room-row" style="display: none;">
+                <span>Room Delivery Service (+₹10):</span>
+                <span id="breakdown-room-val">+₹10</span>
+              </div>
+
+              <div class="breakdown-row" id="breakdown-coupon-row" style="display: none; color: var(--accent-green);">
+                <span>Coupon Discount (<span id="applied-coupon-tag"></span>):</span>
+                <span id="breakdown-coupon-val">-₹0</span>
+              </div>
+
+              <div class="breakdown-row" id="breakdown-pass-row" style="display: none; color: var(--accent-green);">
+                <span>Weekly Pass Coverage (1 Credit):</span>
+                <span>-₹100% (FREE)</span>
+              </div>
+
+              <div class="breakdown-row total-row">
+                <span>Final Payable Amount:</span>
+                <span class="breakdown-total-price" id="breakdown-final-total">₹11</span>
+              </div>
+
+              <div id="breakdown-note-text" style="font-size: 0.8rem; color: var(--text-muted); margin-top: 6px; font-style: italic;">
+                *Exact LPUcart campus tariff applied.
+              </div>
+            </div>
+          </div>
+
+          <!-- Weekly Pass Widget Card -->
+          <div class="glass-card tilt-card" style="padding: 22px;" id="weekly-pass-box">
+            <div class="tilt-inner">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                <span style="font-weight: 800; font-size: 0.95rem; color: var(--primary);">
+                  <i class="fa-solid fa-crown"></i> Student Weekly Pass
+                </span>
+                <span id="pass-credits-badge" class="status-pill status-delivered" style="font-size: 0.75rem;">7 Deliveries Left</span>
+              </div>
+              <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 12px;">
+                Use your active Weekly Pass to make this delivery 100% free (₹0).
+              </p>
+              <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 0.92rem; font-weight: 700;">
+                <input type="checkbox" id="use-weekly-pass-checkbox" onchange="updateLivePricing()" style="width: 18px; height: 18px;">
+                <span>Apply Weekly Pass Credit (₹0 Total)</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Coupon Code Entry Box -->
+          <div class="glass-card tilt-card" style="padding: 22px;">
+            <div class="tilt-inner">
+              <div style="font-weight: 700; font-size: 0.95rem; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
+                <i class="fa-solid fa-ticket text-amber-500"></i> Have a Coupon Code?
+              </div>
+              <div style="display: flex; gap: 8px;">
+                <input type="text" id="coupon-input" class="form-input" placeholder="e.g. FIRST5" style="text-transform: uppercase;">
+                <button type="button" class="btn-3d btn-3d-orange btn-sm" onclick="applyCouponCode()">Apply</button>
+              </div>
+              <div id="coupon-message" style="margin-top: 8px; font-size: 0.82rem;"></div>
+              <div style="margin-top: 10px; font-size: 0.78rem; color: var(--text-muted);">
+                💡 Try <strong style="color: var(--primary);">FIRST5</strong> for ₹5 off, or <strong style="color: var(--primary);">CAMPUS10</strong> on orders ≥ ₹20.
+              </div>
+            </div>
+          </div>
+
+          <!-- OTP Guarantee Notice -->
+          <div class="glass-card tilt-card" style="padding: 20px; border-left: 4px solid var(--accent-green);">
+            <div class="tilt-inner" style="display: flex; align-items: flex-start; gap: 12px;">
+              <i class="fa-solid fa-shield-halved text-emerald-400" style="font-size: 1.4rem; margin-top: 2px;"></i>
+              <div>
+                <div style="font-weight: 700; font-size: 0.9rem;">4-Digit OTP Protection</div>
+                <div style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 2px;">
+                  Your parcel will never be handed over to anyone else. You will receive a unique 4-digit verification OTP on the next screen.
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- 3D ORDER CONFIRMATION MODAL WITH GENERATED OTP -->
+  <div class="modal-backdrop" id="order-success-modal">
+    <div class="modal-dialog glass-card tilt-card">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <div style="width: 36px; height: 36px; border-radius: 50%; background: var(--accent-green); display: flex; align-items: center; justify-content: center; color: #fff;">
+            <i class="fa-solid fa-check"></i>
+          </div>
+          <h3 style="font-weight: 800; font-size: 1.25rem;">Order Placed Successfully!</h3>
+        </div>
+        <button class="modal-close-btn" onclick="closeModal('order-success-modal')">&times;</button>
+      </div>
+
+      <p style="color: var(--text-secondary); font-size: 0.92rem;">
+        Your delivery request has been registered and dispatched to our runner stationed at Uni Mall.
+      </p>
+
+      <!-- Prominent 4-digit OTP Box -->
+      <div class="otp-display-box">
+        <div style="font-size: 0.85rem; font-weight: 700; text-transform: uppercase; color: var(--text-secondary); letter-spacing: 0.05em;">
+          Your Secure Parcel Handover OTP
+        </div>
+        <div class="otp-number" id="modal-otp-display">0000</div>
+        <div style="font-size: 0.82rem; color: var(--text-muted);">
+          Share this 4-digit code with runner <strong id="modal-runner-name" style="color: var(--primary);">Assigned Partner</strong> at the time of delivery.
+        </div>
+      </div>
+
+      <div style="background: var(--bg-input); padding: 14px; border-radius: var(--radius-sm); margin-bottom: 20px; font-size: 0.88rem;">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+          <span style="color: var(--text-muted);">Order Tracking ID:</span>
+          <strong id="modal-order-id" style="color: var(--primary); font-family: var(--font-mono);">LPU-0000</strong>
+        </div>
+        <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+          <span style="color: var(--text-muted);">Total Amount:</span>
+          <strong id="modal-order-total">₹0</strong>
+        </div>
+        <div style="display: flex; justify-content: space-between;">
+          <span style="color: var(--text-muted);">Payment:</span>
+          <span id="modal-order-payment" class="status-pill status-picked" style="font-size: 0.75rem;">Paid</span>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 12px;">
+        <button class="btn-3d btn-3d-orange btn-full" id="modal-track-btn" onclick="goToTracking()">
+          <i class="fa-solid fa-crosshairs"></i> Track Order Live
+        </button>
+        <button class="btn-3d btn-3d-outline btn-full" onclick="window.location.href='history.html'">
+          <i class="fa-solid fa-clock-rotate-left"></i> View History
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Shared Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a href="index.html" class="brand-logo-pill footer-logo-pill" aria-label="LPUcart Home" style="display: inline-flex; margin-bottom: 12px;">
+            <img src="/assets/logo.png" alt="LPUcart Logo" class="footer-brand-logo" width="80" height="60">
+          </a>
+          <p>Campus parcel delivery service bringing online shopping parcels from Uni Mall directly to student hostels.</p>
+        </div>
+        <div>
+          <h4 class="footer-heading">Pages</h4>
+          <ul class="footer-links">
+            <li><a href="order.html">Place Delivery</a></li>
+            <li><a href="track.html">Track Order</a></li>
+            <li><a href="history.html">History</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="footer-heading">Support &amp; Help</h4>
+          <ul class="footer-links">
+            <li><a href="how-it-works.html">How It Works</a></li>
+            <li><a href="contact.html">Contact Founder</a></li>
+            <li><a href="track.html">Track Order</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="footer-heading">Fixed Tariff</h4>
+          <p style="color: var(--text-secondary); font-size: 0.92rem;">
+            1 Parcel: ₹11 • Multi: ₹22 • Room: +₹10 • Live: ₹19
+          </p>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <div>
+          <div>&copy; 2026 LPUcart Logistics. For LPU Campus Students.</div>
+          <div style="font-size:0.82rem; color:var(--text-muted); margin-top:4px;">Student project demo. Not an official LPU service.</div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="/js/main.js"></script>
+  <script src="/js/pricing.js"></script>
+  <script src="/js/storage.js"></script>
+
+  <script>
+    // State variables for Order page
+    let activeCoupon = "";
+    let uploadedPhotoBase64 = "";
+    let activeCreatedOrderId = "";
+
+    // 1. Initialize Form Dropdowns from Config
+    document.addEventListener("DOMContentLoaded", () => {
+      // Grouped Hostels (Boys Hostels, Girls Hostels, Other Buildings)
+      window.renderHostelDropdown(
+        document.getElementById("hostel-block"),
+        document.getElementById("custom-hostel-group"),
+        document.getElementById("custom-hostel-input")
+      );
+
+      populateTimeSlots();
+      checkWeeklyPassStatus();
+
+      // Read URL params (e.g. from hero / plan cards)
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get("parcels")) {
+        document.getElementById("parcel-count").value = urlParams.get("parcels");
+      }
+      if (urlParams.get("type")) {
+        const typeRadio = document.querySelector(`input[name="delivery-type"][value="${urlParams.get("type")}"]`);
+        if (typeRadio) typeRadio.checked = true;
+      }
+
+      updateLivePricing();
+    });
+
+    function populateTimeSlots() {
+      const select = document.getElementById("time-slot");
+      if (!select || !window.LPU_PRICING || !window.LPU_PRICING.TIME_SLOTS) return;
+      select.innerHTML = window.LPU_PRICING.TIME_SLOTS.map(
+        s => `<option value="${s}">${s}</option>`
+      ).join("");
+    }
+
+    function checkWeeklyPassStatus() {
+      const pass = window.LPU_STORAGE ? window.LPU_STORAGE.getWeeklyPass() : null;
+      const badge = document.getElementById("pass-credits-badge");
+      const checkbox = document.getElementById("use-weekly-pass-checkbox");
+
+      if (pass && pass.active && pass.remaining > 0) {
+        badge.textContent = `${pass.remaining} Deliveries Left`;
+        badge.className = "status-pill status-delivered";
+        checkbox.disabled = false;
+      } else {
+        badge.textContent = "No Active Pass";
+        badge.className = "status-pill status-placed";
+        checkbox.disabled = true;
+        checkbox.checked = false;
+      }
+    }
+
+    function adjustParcelCount(delta) {
+      const input = document.getElementById("parcel-count");
+      let val = (parseInt(input.value, 10) || 1) + delta;
+      if (val < 1) val = 1;
+      if (val > 25) val = 25;
+      input.value = val;
+      updateLivePricing();
+    }
+
+    // 2. LIVE PRICE CALCULATOR (Instant updates)
+    function updateLivePricing() {
+      const parcelCount = parseInt(document.getElementById("parcel-count").value, 10) || 1;
+      const deliveryTypeRadio = document.querySelector('input[name="delivery-type"]:checked');
+      const deliveryType = deliveryTypeRadio ? deliveryTypeRadio.value : "gate";
+      const useWeeklyPass = document.getElementById("use-weekly-pass-checkbox").checked;
+      const phoneInput = (document.getElementById("student-phone").value || "").trim();
+      const isFirst = window.LPU_STORAGE ? window.LPU_STORAGE.isUserFirstOrder(phoneInput) : true;
+
+      // Handle UI toggles based on delivery type
+      const roomGroup = document.getElementById("room-number-group");
+      const liveBox = document.getElementById("live-location-box");
+      const hostelGroup = document.getElementById("hostel-block-group");
+      const customHostelGroup = document.getElementById("custom-hostel-group");
+
+      if (deliveryType === "live") {
+        liveBox.style.display = "block";
+        roomGroup.style.display = "none";
+        hostelGroup.style.display = "none";
+        customHostelGroup.style.display = "none";
+        document.getElementById("room-number").required = false;
+        document.getElementById("hostel-block").required = false;
+      } else {
+        liveBox.style.display = "none";
+        roomGroup.style.display = "block";
+        hostelGroup.style.display = "block";
+        document.getElementById("room-number").required = true;
+        document.getElementById("hostel-block").required = true;
+        // Restore custom group if other was selected
+        if (document.getElementById("hostel-block").value === "__OTHER__") {
+          customHostelGroup.style.display = "block";
+        }
+      }
+
+      // Calculate with pricing config
+      const quote = window.LPU_PRICING.calculateOrderPrice({
+        parcels: parcelCount,
+        deliveryType: deliveryType,
+        coupon: activeCoupon,
+        useWeeklyPass: useWeeklyPass,
+        isFirstOrder: isFirst
+      });
+
+      // Update Breakdown DOM elements
+      const baseLabel = document.getElementById("breakdown-base-label");
+      const baseVal = document.getElementById("breakdown-base-val");
+      const roomRow = document.getElementById("breakdown-room-row");
+      const couponRow = document.getElementById("breakdown-coupon-row");
+      const couponTag = document.getElementById("applied-coupon-tag");
+      const couponVal = document.getElementById("breakdown-coupon-val");
+      const passRow = document.getElementById("breakdown-pass-row");
+      const finalTotal = document.getElementById("breakdown-final-total");
+      const noteText = document.getElementById("breakdown-note-text");
+
+      baseLabel.textContent = deliveryType === "live" 
+        ? "Live Location (Campus coordinates):" 
+        : `${quote.parcelCount} Parcel${quote.parcelCount > 1 ? "s" : ""} to Hostel Gate:`;
+      baseVal.textContent = `₹${quote.basePrice}`;
+
+      if (quote.roomExtra > 0) {
+        roomRow.style.display = "flex";
+      } else {
+        roomRow.style.display = "none";
+      }
+
+      if (quote.discount > 0 && !quote.weeklyPassCovered) {
+        couponRow.style.display = "flex";
+        couponTag.textContent = activeCoupon;
+        couponVal.textContent = `-₹${quote.discount}`;
+      } else {
+        couponRow.style.display = "none";
+      }
+
+      if (quote.weeklyPassCovered) {
+        passRow.style.display = "flex";
+      } else {
+        passRow.style.display = "none";
+      }
+
+      const displayPrice = isNaN(quote.total) ? 11 : quote.total;
+      finalTotal.textContent = `₹${displayPrice}`;
+      noteText.textContent = `* ${quote.calculationNote}`;
+
+      return quote;
+    }
+
+    // 3. COUPON CODE LOGIC
+    function applyCouponCode() {
+      const codeInput = document.getElementById("coupon-input");
+      const msg = document.getElementById("coupon-message");
+      const clean = (codeInput.value || "").trim().toUpperCase();
+
+      if (!clean) {
+        msg.innerHTML = `<span style="color:var(--accent-red);"><i class="fa-solid fa-circle-xmark"></i> Please enter a coupon code.</span>`;
+        return;
+      }
+
+      const available = window.LPU_PRICING.COUPONS[clean];
+      if (available) {
+        const phone = (document.getElementById("student-phone").value || "").trim();
+        const isFirst = window.LPU_STORAGE ? window.LPU_STORAGE.isUserFirstOrder(phone) : true;
+
+        if (available.firstOrderOnly && !isFirst) {
+          msg.innerHTML = `<span style="color:var(--accent-red);"><i class="fa-solid fa-circle-xmark"></i> Coupon FIRST5 is valid on your first order only.</span>`;
+          showToast("FIRST5 is valid on first order only", "warning");
+          activeCoupon = "";
+          updateLivePricing();
+          return;
+        }
+
+        activeCoupon = clean;
+        msg.innerHTML = `<span style="color:var(--accent-green);"><i class="fa-solid fa-circle-check"></i> Applied! ${available.description}</span>`;
+        showToast(`Coupon "${clean}" applied!`, "success");
+        updateLivePricing();
+      } else {
+        msg.innerHTML = `<span style="color:var(--accent-red);"><i class="fa-solid fa-circle-xmark"></i> Invalid coupon code. Try FIRST5.</span>`;
+        showToast("Invalid coupon code", "error");
+      }
+    }
+
+    // 4. GEOLOCATION API FOR LIVE LOCATION
+    function fetchLiveCoordinates() {
+      const status = document.getElementById("live-location-status");
+      const preview = document.getElementById("live-maps-preview");
+
+      if (!navigator.geolocation) {
+        status.innerHTML = `<span style="color:var(--accent-red);"><i class="fa-solid fa-triangle-exclamation"></i> Geolocation is not supported by your browser.</span>`;
+        showToast("Geolocation not supported by browser", "error");
+        return;
+      }
+
+      status.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-amber-500"></i> Locating your campus coordinates...`;
+
+      navigator.geolocation.getCurrentPosition(
+        position => {
+          const lat = position.coords.latitude.toFixed(6);
+          const lng = position.coords.longitude.toFixed(6);
+          const mapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
+
+          document.getElementById("live-coords-lat").value = lat;
+          document.getElementById("live-coords-lng").value = lng;
+          document.getElementById("live-coords-maps").value = mapsUrl;
+
+          status.innerHTML = `<span style="color:var(--accent-green);"><i class="fa-solid fa-circle-check"></i> Location Locked: ${lat}, ${lng}</span>`;
+          preview.style.display = "block";
+          preview.innerHTML = `<a href="${mapsUrl}" target="_blank" rel="noopener noreferrer" style="color:var(--primary); text-decoration:underline;"><i class="fa-solid fa-arrow-up-right-from-square"></i> Preview Google Maps Pin</a>`;
+          showToast("Live location locked successfully!", "success");
+        },
+        error => {
+          let errText = "Location permission denied. Please allow GPS access, or fallback central campus pin will be used.";
+          if (error.code === error.POSITION_UNAVAILABLE) errText = "Campus GPS position unavailable on this device.";
+          if (error.code === error.TIMEOUT) errText = "GPS location request timed out.";
+
+          // Safe fallback to central Uni Mall coordinates so the order never crashes
+          const defaultLat = "31.253600";
+          const defaultLng = "75.703200";
+          const defaultMaps = `https://www.google.com/maps?q=${defaultLat},${defaultLng}`;
+
+          document.getElementById("live-coords-lat").value = defaultLat;
+          document.getElementById("live-coords-lng").value = defaultLng;
+          document.getElementById("live-coords-maps").value = defaultMaps;
+
+          status.innerHTML = `<span style="color:var(--accent-yellow);"><i class="fa-solid fa-circle-exclamation"></i> ${errText} (Defaulting to Uni Mall Central Coordinates)</span>`;
+          preview.style.display = "block";
+          preview.innerHTML = `<a href="${defaultMaps}" target="_blank" rel="noopener noreferrer" style="color:var(--primary); text-decoration:underline;"><i class="fa-solid fa-arrow-up-right-from-square"></i> View Uni Mall Central Pin</a>`;
+          showToast("Using Campus Uni Mall Central Pin", "info");
+        },
+        { timeout: 8000, enableHighAccuracy: true, maximumAge: 60000 }
+      );
+    }
+
+    // 5. PARCEL PHOTO UPLOAD (Base64)
+    function handlePhotoUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      if (file.size > 3 * 1024 * 1024) {
+        showToast("File size too large (max 3MB)", "warning");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        uploadedPhotoBase64 = event.target.result;
+        document.getElementById("upload-preview-img").src = uploadedPhotoBase64;
+        document.getElementById("upload-preview-name").textContent = file.name;
+        document.getElementById("upload-preview-container").style.display = "flex";
+        showToast("Parcel screenshot attached", "info");
+      };
+      reader.onerror = function() {
+        showToast("Could not read image file", "error");
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function removeUploadedPhoto() {
+      uploadedPhotoBase64 = "";
+      document.getElementById("parcel-photo-input").value = "";
+      document.getElementById("upload-preview-container").style.display = "none";
+    }
+
+    // 6. TOGGLE PAYMENT DISPLAY (UPI vs COD)
+    function togglePaymentDisplay() {
+      const mode = document.querySelector('input[name="payment-method"]:checked').value;
+      const upiBox = document.getElementById("upi-display-card");
+      if (mode === "UPI") {
+        upiBox.style.display = "block";
+      } else {
+        upiBox.style.display = "none";
+      }
+    }
+
+    // 7. ORDER SUBMISSION HANDLER (With Double Submit Protection & Validation)
+    function handleOrderSubmit(e) {
+      e.preventDefault();
+
+      const submitBtn = document.getElementById("submit-order-btn");
+      if (submitBtn.disabled) return;
+
+      const name = document.getElementById("student-name").value.trim();
+      const phone = document.getElementById("student-phone").value.trim();
+      const parcelCount = parseInt(document.getElementById("parcel-count").value, 10) || 1;
+      const deliveryType = document.querySelector('input[name="delivery-type"]:checked').value;
+      
+      const hostelSelect = document.getElementById("hostel-block");
+      const customHostelInput = document.getElementById("custom-hostel-input");
+      const hostelBlock = deliveryType === "live" 
+        ? "Live GPS Location" 
+        : window.getSelectedHostelValue(hostelSelect, customHostelInput);
+
+      const roomNo = deliveryType === "live" 
+        ? "N/A (Live Location)" 
+        : document.getElementById("room-number").value.trim();
+
+      const trackingId = document.getElementById("tracking-id").value.trim();
+      const timeSlot = document.getElementById("time-slot").value;
+      const paymentMethod = document.querySelector('input[name="payment-method"]:checked').value;
+      const useWeeklyPass = document.getElementById("use-weekly-pass-checkbox").checked;
+
+      // Validation
+      if (!name) {
+        showToast("Please enter your name", "error");
+        document.getElementById("student-name").focus();
+        return;
+      }
+
+      if (!/^\d{10}$/.test(phone)) {
+        showToast("Please enter a valid 10-digit mobile number", "error");
+        document.getElementById("student-phone").focus();
+        return;
+      }
+
+      if (deliveryType !== "live") {
+        if (!hostelBlock || hostelSelect.value === "") {
+          showToast("Please select your hostel or building", "error");
+          hostelSelect.focus();
+          return;
+        }
+        if (hostelSelect.value === "__OTHER__" && !customHostelInput.value.trim()) {
+          showToast("Please specify the building name or number", "error");
+          customHostelInput.focus();
+          return;
+        }
+        if (!roomNo) {
+          showToast("Please enter your room number", "error");
+          document.getElementById("room-number").focus();
+          return;
+        }
+      }
+
+      if (!trackingId) {
+        showToast("Please enter the courier parcel ID / order ID", "error");
+        document.getElementById("tracking-id").focus();
+        return;
+      }
+
+      // Live location coordinates
+      let liveLocationData = null;
+      if (deliveryType === "live") {
+        const lat = document.getElementById("live-coords-lat").value || "31.253600";
+        const lng = document.getElementById("live-coords-lng").value || "75.703200";
+        const mapsUrl = document.getElementById("live-coords-maps").value || `https://www.google.com/maps?q=${lat},${lng}`;
+        liveLocationData = { latitude: lat, longitude: lng, mapsUrl: mapsUrl };
+      }
+
+      // Prevent double submission: disable button and show spinner
+      submitBtn.disabled = true;
+      const origBtnHtml = submitBtn.innerHTML;
+      submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Booking Order...`;
+
+      try {
+        const quote = updateLivePricing();
+
+        // Create Order via Storage Manager
+        const newOrder = window.LPU_STORAGE.createOrder({
+          name: name,
+          phone: phone,
+          hostelBlock: hostelBlock,
+          roomNo: roomNo,
+          trackingId: trackingId,
+          parcels: parcelCount,
+          deliveryType: deliveryType,
+          timeSlot: timeSlot,
+          photoUrl: uploadedPhotoBase64,
+          paymentMethod: useWeeklyPass ? "WEEKLY_PASS" : paymentMethod,
+          coupon: activeCoupon,
+          priceBreakdown: quote,
+          liveLocation: liveLocationData,
+          useWeeklyPass: useWeeklyPass
+        });
+
+        activeCreatedOrderId = newOrder.id;
+
+        // Populate Success Modal
+        document.getElementById("modal-otp-display").textContent = newOrder.otp;
+        document.getElementById("modal-order-id").textContent = newOrder.id;
+        document.getElementById("modal-order-total").textContent = useWeeklyPass ? "₹0 (Pass Used)" : `₹${quote.total}`;
+        document.getElementById("modal-order-payment").textContent = newOrder.paymentStatus;
+        const assignedRunner = (newOrder.deliveryBoy && newOrder.deliveryBoy.name) || newOrder.partnerName || "Assigned Partner";
+        document.getElementById("modal-runner-name").textContent = assignedRunner;
+
+        openModal("order-success-modal");
+        showToast(`Order ${newOrder.id} booked! OTP is ${newOrder.otp}`, "success");
+      } catch (err) {
+        console.error("Order submission error:", err);
+        showToast("Error creating order. Please check inputs and retry.", "error");
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = origBtnHtml;
+      }
+    }
+
+    function goToTracking() {
+      if (activeCreatedOrderId) {
+        window.location.href = `track.html?id=${encodeURIComponent(activeCreatedOrderId)}`;
+      } else {
+        window.location.href = "track.html";
+      }
+    }
+  </script>
+</body>
+</html>
+
