@@ -1,4 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://lpucart-delivery.netlify.app/sitemap.xml
