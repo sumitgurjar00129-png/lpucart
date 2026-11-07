@@ -1,36 +1,51 @@
-# 📦 LPUcart - 3D Campus Parcel Delivery Service
+# 📦 LPUcart - Campus Parcel Delivery Service
 
-> **LPUcart** is an interactive, modern, multi-page 3D website built for university hostel students. It connects online shopping parcel pickups at **Uni Mall** (Amazon, Flipkart, Myntra, etc.) directly to student hostels, rooms, or live GPS campus coordinates.
+> **LPUcart** is an interactive, modern, multi-page campus parcel delivery web application designed for university hostel students. It connects online shopping parcel pickups at **Uni Mall** (Amazon, Flipkart, Myntra, Meesho, Bluedart, etc.) directly to student hostels, rooms, or live GPS campus coordinates.
+> 
+> 🌐 **Live URL**: [https://lpucart-delivery.netlify.app](https://lpucart-delivery.netlify.app)
+> 🎓 **Status**: Student project demo. Not an official LPU service.
 
-Built with **pure HTML5, CSS3 3D transforms, vanilla JavaScript, and Three.js (via CDN)**. No frameworks, no external build tools, and no backend needed. All data persists client-side in `localStorage`.
+Built with **pure HTML5, modern CSS3 (3D transforms & glassmorphism), vanilla JavaScript (ES6+), and Three.js (via CDN)**. No complex build pipelines or external frameworks needed. All data is reliably persisted client-side in `localStorage` via a robust storage module.
 
 ---
 
 ## 🚀 How to Run the Website
 
-You can run LPUcart simply by opening `index.html` in any modern web browser:
+You can run LPUcart by opening `index.html` in any modern web browser:
 
 ### Option 1: Direct File Open
-Double click `index.html` or drag and drop it into Google Chrome, Microsoft Edge, Safari, or Firefox.
+Double-click `index.html` or drag and drop it into Google Chrome, Microsoft Edge, Safari, or Firefox.
 
-### Option 2: Using VS Code Live Server
-1. Open the `cse326project` folder in Visual Studio Code.
-2. Right-click `index.html` and click **"Open with Live Server"**.
-
-### Option 3: Python Built-in Server (Terminal)
-Open your terminal inside this directory and run:
+### Option 2: Python Built-in Server (Recommended)
+Open your terminal inside this project directory and run:
 ```bash
 python3 -m http.server 8000
 ```
 Then visit: `http://localhost:8000` in your browser.
 
+### Option 3: Using VS Code Live Server
+1. Open the `cse326project` folder in Visual Studio Code.
+2. Right-click `index.html` and select **"Open with Live Server"**.
+
 ---
 
-## ⚙️ Configuration Guide (Where to Change Prices, Blocks, Slots & Logins)
+## ⚙️ Master Configuration Guide
 
-All configurable business rules, rates, locations, and demo credentials are placed cleanly at the top of their respective JavaScript files with clear comments:
+All configurable business rules, rates, locations, and owner details are centralized in one single configuration block at the top of their respective JavaScript files:
 
-### 1. Change Delivery Prices
+### 1. Owner & Founder Details
+File: [`js/main.js`](js/main.js)
+```javascript
+const OWNER_CONFIG = {
+  OWNER_NAME: "Sumit Gurjar",
+  OWNER_PHONE: "919680040551",
+  OWNER_PHONE_DISPLAY: "+91 96800 40551",
+  OWNER_EMAIL: "sumitgurjar00129@gmail.com"
+};
+```
+*Note: These details automatically populate all contact info, WhatsApp dispatch links (`wa.me`), phone dials, and email links across every page.*
+
+### 2. Guaranteed Campus Delivery Pricing
 File: [`js/pricing.js`](js/pricing.js)
 ```javascript
 const PRICES = {
@@ -40,130 +55,116 @@ const PRICES = {
   live: 19      // Delivery outside hostel to student's live location: ₹19
 };
 ```
-*Note: Any change made here updates the price calculator on the Order page, the master pricing matrix, and the live order totals immediately.*
+*Note: Any rate modification updates the real-time Order page price breakdown, the master tariff tables, and active quotes.*
 
-### 2. Change Campus Hostels & Buildings
-File: [`js/main.js`](js/main.js) (located at the top of the file as the single source of truth)
+### 3. Campus Hostels & Buildings
+File: [`js/main.js`](js/main.js)
 ```javascript
 const HOSTELS = {
   boys: [
-    "Boys Hostel 1",
-    "Boys Hostel 2",
-    "Boys Hostel 3",
-    "Boys Hostel 4",
-    "Boys Hostel 5",
-    "Boys Hostel 6",
-    "Boys Hostel 7",
-    "Boys Hostel 8",
-    "Boys Hostel 9",
-    "Boys Hostel 10"
+    "Boys Hostel 1", "Boys Hostel 2", "Boys Hostel 3", "Boys Hostel 4", "Boys Hostel 5",
+    "Boys Hostel 6", "Boys Hostel 7", "Boys Hostel 8", "Boys Hostel 9", "Boys Hostel 10"
   ],
   girls: [
-    "Girls Hostel 11",
-    "Girls Hostel 12",
-    "Girls Hostel 13"
+    "Girls Hostel 11", "Girls Hostel 12", "Girls Hostel 13"
   ],
-  other: [] // extra buildings (e.g. "Uni-Hotel", "Faculty Apartments") can be added here
+  other: [] // extra campus buildings can be added here
 };
 ```
 * **How it works**:
   - The dropdown automatically organizes entries under `<optgroup>` headers: **"Boys Hostels"**, **"Girls Hostels"**, and **"Other Buildings"**.
-  - Students can also pick **"Other building (Type name/number)..."** to reveal a custom text input for any unlisted campus location.
-  - The selected building is saved with the order and displayed across the Student Tracker, Order History, Delivery Boy dashboard, and Admin portal.
-  - The Admin portal includes instant filtering by **All / Boys / Girls / Other**.
-  - To add or modify hostels, simply edit the arrays inside `HOSTELS` in `js/main.js`. Never hardcode hostel names elsewhere.
+  - Students can select **"Other building (Type name/number)..."** to reveal a custom text input for any unlisted campus location.
+  - The selected building is saved with the order and displayed across the Student Tracker, Order History, Partner Portal, and Owner Portal.
+  - The Owner Portal includes instant filtering by **All / Boys / Girls / Other**.
 
-### 3. Change Delivery Time Slots
+### 4. Delivery Time Slots & Weekly Pass
 File: [`js/pricing.js`](js/pricing.js)
-```javascript
-const TIME_SLOTS = [
-  "10:00 AM - 12:00 PM (Morning Slot)",
-  "12:00 PM - 02:00 PM (Afternoon Slot)",
-  "04:00 PM - 06:00 PM (Evening Slot 1)",
-  "06:00 PM - 08:00 PM (Evening Slot 2)"
-];
-```
-
-### 4. Change Coupons & Promo Discounts
-File: [`js/pricing.js`](js/pricing.js)
-```javascript
-const COUPONS = {
-  "FIRST5": { code: "FIRST5", discount: 5, description: "₹5 off for first-time orders" },
-  "CAMPUS10": { code: "CAMPUS10", discount: 10, description: "₹10 Off on orders ≥ ₹20" }
-};
-```
-
-### 5. Change Delivery Boy Login & Profile
-File: [`js/storage.js`](js/storage.js)
-```javascript
-const DEMO_DELIVERY_CREDS = {
-  username: "deliveryboy",
-  password: "lpu123",
-  profile: {
-    name: "Rahul Kumar",
-    phone: "9876543210",
-    vehicle: "Hero E-Scooter (PB-08-LP-1024)",
-    rating: 4.9
-  }
-};
-```
-
-### 6. Change Admin Dashboard Passcode
-File: [`js/storage.js`](js/storage.js)
-```javascript
-const DEMO_ADMIN_CREDS = {
-  username: "admin",
-  password: "admin123",
-  role: "Campus Logistics Manager"
-};
-```
+- **Time Slots**: `10:00 AM - 12:00 PM`, `12:00 PM - 02:00 PM`, `04:00 PM - 06:00 PM`, `06:00 PM - 08:00 PM`.
+- **Weekly Pass**: 10 campus deliveries for ₹99 flat.
 
 ---
 
-## 🌐 Pages Overview
+## 🌐 Pages & Security Architecture
 
-| Page | File | Key Features |
+### Public Student Pages (Zero Staff Links)
+Public pages contain **no links** to staff portals in headers, footers, or mobile drawers:
+
+| Page | File | URL | Description |
+|---|---|---|---|
+| **Home** | `index.html` | `/` | 3D Three.js hero with rotating parcel, CSS 3D fallback box, honest "Why LPUcart" features, pricing summary, 3D flip steps. |
+| **Order Now** | `order.html` | `/order` | Dynamic price calculator, room toggle, HTML5 Geolocation pin, UPI QR ("Demo QR - no real payment"), 4-digit OTP handover modal. |
+| **Track Order** | `track.html` | `/track` | **Privacy-protected tracker**: requires Tracking ID + last 4 digits of phone number. Shows runner's first name, OTP, and post-delivery 5-star rating. |
+| **Order History** | `history.html` | `/history` | **Device-private history**: shows only orders placed from the current browser session (`lpucart_my_orders`), with filters and one-click re-order. |
+| **How It Works** | `how-it-works.html` | `/how-it-works` | Uni Mall distance problem vs LPUcart solution, transparent price matrix table, 4-digit OTP guarantee, and FAQs. |
+| **Contact Support** | `contact.html` | `/contact` | Founder: Sumit Gurjar, campus contact details, local demo contact form, and direct WhatsApp support. |
+
+### Private Staff Portals (Hidden & Protected)
+Staff portals are omitted from `sitemap.xml`, not listed in `robots.txt`, and tagged with `<meta name="robots" content="noindex, nofollow">`:
+
+| Portal | File | Access & Privacy |
 |---|---|---|
-| **Home** | `index.html` | 3D Three.js hero with rotating parcel & delivery scooter, mouse parallax, CSS 3D fallback box, price cards, 3D flip steps, animated counters. |
-| **Order Now** | `order.html` | Real-time price breakdown calculator, room delivery toggle, browser Geolocation for Live Coordinates, base64 photo upload, UPI QR display, 4-digit OTP modal. |
-| **Track Order** | `track.html` | 3-stage animated status stepper (`Picked` ➔ `On the way` ➔ `Delivered`), delivery boy info, WhatsApp runner chat button, 5-star post-delivery rating system. |
-| **Order History** | `history.html` | Live feed of all orders from `localStorage`, tab filters (`All`, `Active`, `Delivered`), search bar, and one-click re-order. |
-| **How It Works** | `how-it-works.html` | Uni Mall distance problem vs LPUcart solution, pricing comparison table, operational hours, 3D FAQ accordions. |
-| **Contact Support** | `contact.html` | Campus dispatch desk details, student contact form (persisted locally), direct WhatsApp hotline. |
-| **Delivery Boy Portal** | `delivery.html` | Secure runner login, student location maps link, status updates, **mandatory 4-digit OTP verification** before handover. |
-| **Admin Dashboard** | `admin.html` | Today's revenue & order KPI cards, pure HTML5 Canvas bar charts, master ledger, and reset demo data button. |
+| **Owner Portal** | `owner-portal.html` | Protected by SHA-256 Web Crypto hashing, 30-min session timeout, and 5-min lockout after 5 incorrect attempts. Controls partner management, credential sharing, master order ledger, delivery confirmation, support messages, and password resets. |
+| **Delivery Partner Portal** | `runner-portal.html` | Dedicated runner interface. Partner only sees orders explicitly assigned to them. Requires student's 4-digit OTP to complete handover. Student phone numbers are permanently masked once delivery completes. |
 
 ---
 
-## 🔄 End-to-End Testing Flow
+## 🔐 Owner & Staff Management Workflow
 
-1. **Place an Order** (`order.html`):
-   - Enter your name and 10-digit mobile number.
-   - Choose **Hostel Gate**, **Up to Room**, or **Live Location**.
-   - Watch the price update live in the right-hand card.
-   - Click **"Confirm Delivery"** to see your unique **4-digit handover OTP** (e.g. `4829`).
-2. **Track the Order** (`track.html`):
-   - View your order status (`Picked`), runner details, and OTP reminder.
-   - Click **"Chat on WhatsApp"** to test the pre-filled order message.
-3. **Delivery Partner Handover** (`delivery.html`):
-   - Click **"Partner Login"** (use `deliveryboy` / `lpu123` or click demo login).
-   - Find your active order. Click **"Mark On The Way"**.
-   - Click **"Enter OTP & Mark Delivered"**. Enter the student's 4-digit OTP.
-   - If incorrect, access is denied. If correct, status changes to **Delivered**!
-4. **Rate Your Delivery** (`track.html`):
-   - Refresh the tracking page; notice the status is now **Delivered**.
-   - Rate the delivery 1 to 5 stars and leave a review.
-5. **View History & Admin Stats** (`history.html` and `admin.html`):
-   - Check the delivered order under `history.html`.
-   - Log into `admin.html` (`admin` / `admin123`) to view updated total earnings and dynamic canvas charts.
+### 1. Owner Portal Login (`owner-portal.html`)
+1. Open `owner-portal.html` in your browser.
+2. Sign in with username `owner`.
+3. Enter your temporary owner password (printed in your handover chat message).
+4. **Forced Password Change**: On first login, you will immediately be prompted to create your new permanent password.
+5. You can also update your password at any time inside the **Settings** tab.
+
+### 2. Managing Delivery Partners
+1. In `owner-portal.html`, navigate to the **Delivery Partners** tab.
+2. Click **"Add Delivery Partner"**.
+3. Enter the partner's full name, 10-digit mobile number, and set an optional password (or let the system generate an 8-character secure password).
+4. Once saved, a **Partner Credentials Share Card** appears with:
+   - Direct runner portal URL (`/runner-portal.html`).
+   - Username and initial temporary password.
+   - **One-click "Copy Credentials"** button.
+   - **"Share via WhatsApp"** button which prepares a friendly pre-formatted onboarding message.
+5. In the Partners table, the owner can at any time:
+   - **Disable / Enable** any partner account.
+   - **Reset Password** to generate a new temporary password and force a change on next login.
+   - **Delete** a partner account.
+
+### 3. Delivery Partner Handover (`runner-portal.html`)
+1. The partner opens `runner-portal.html` and logs in with their phone number or username and initial password.
+2. If it is their first login or their password was reset, they are prompted to set a permanent password.
+3. The partner sees **only their assigned orders** (never other runners' orders or total earnings).
+4. The partner clicks **"Accept & Pick Up"** (status: `Picked`), then **"Start Delivery"** (status: `On the way`).
+5. When arriving at the student's hostel or room:
+   - Partner asks the student for their **4-digit handover OTP**.
+   - Partner enters the OTP. If incorrect, delivery is rejected. If correct, status becomes **Delivered**.
+   - Student's phone number is immediately masked in the partner portal for privacy.
+
+### 4. Owner Confirmation
+1. In `owner-portal.html`, orders marked `Delivered` display an amber **"Waiting for owner confirmation"** badge.
+2. The owner reviews the handover and clicks **"Confirm Delivery"**.
+3. Status changes to **Confirmed** and student rating is logged.
+
+---
+
+## 🔒 Student Privacy Guarantee
+
+1. **Order Tracking Security (`track.html`)**:
+   - Students cannot view orders by guessing random IDs.
+   - Entering an Order ID requires verifying the **last 4 digits of the phone number** used during checkout.
+   - Unauthorized attempts show a clear `"Order not found or verification failed"` notice.
+   - The student's specific room number is masked on the tracker for privacy, and only the delivery partner's first name is shown.
+2. **Order History Device Isolation (`history.html`)**:
+   - Reads exclusively from `lpucart_my_orders` stored on that browser device.
+   - Other users sharing the network or viewing the page cannot see past orders placed by other students.
 
 ---
 
 ## 🎨 Technology Highlights
-- **Three.js Scene**: Procedural 3D parcel box with custom canvas-generated cardboard and barcode textures, 3D electric delivery bike with wheels, headlight, and floating parcel boxes.
+- **Three.js Scene**: Interactive procedural 3D parcel with custom canvas textures, electric campus delivery scooter with rotating wheels, and mouse parallax.
 - **CSS 3D Fallback**: 6-faced rotating CSS cube if WebGL or CDN is unavailable.
-- **3D Interactive CSS**: Perspective tilt cards with dynamic cursor rotation (`rotateX`, `rotateY`, `translateZ`), 3D flip cards, and tactile push buttons.
-- **Dark Mode**: Persisted in `localStorage` across page navigations.
-- **HTML5 Geolocation**: Generates accurate Google Maps pins for students studying on lawns or at the library.
-- **Responsive**: Fully optimized for mobile screens, tablets, and desktops.
-
+- **3D Interactive CSS**: Perspective tilt cards (`rotateX`, `rotateY`, `translateZ`), 3D flip steps, and tactile push buttons.
+- **Web Crypto API**: SHA-256 password hashing client-side. Zero plain text passwords stored in state.
+- **Dark Mode**: Persisted in `localStorage` across page navigations with a rounded white pill behind the logo.
+- **Responsive**: Fully optimized for mobile phones, tablets, and desktops.

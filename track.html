@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Track Order - LPUcart - Uni Mall se Hostel Parcel Delivery</title>
   <meta name="description" content="Track your LPU campus parcel delivery in real-time. View live status (Picked, On the way, Delivered), runner details, handover OTP, and rating.">
-  <link rel="canonical" href="https://lpucart.netlify.app/track.html">
+  <link rel="canonical" href="https://lpucart-delivery.netlify.app/track">
 
   <!-- Favicon & Touch Icons -->
   <link rel="icon" href="/favicon.png" type="image/png">
@@ -14,16 +14,16 @@
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="LPUcart">
-  <meta property="og:url" content="https://lpucart.netlify.app/track.html">
+  <meta property="og:url" content="https://lpucart-delivery.netlify.app/track">
   <meta property="og:title" content="Track Order - LPUcart - Uni Mall se Hostel Parcel Delivery">
   <meta property="og:description" content="Track your LPU campus parcel delivery in real-time. View live status (Picked, On the way, Delivered), runner details, handover OTP, and rating.">
-  <meta property="og:image" content="https://lpucart.netlify.app/assets/logo.png">
+  <meta property="og:image" content="https://lpucart-delivery.netlify.app/assets/logo.png">
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Track Order - LPUcart - Uni Mall se Hostel Parcel Delivery">
   <meta name="twitter:description" content="Track your LPU campus parcel delivery in real-time. View live status (Picked, On the way, Delivered), runner details, handover OTP, and rating.">
-  <meta name="twitter:image" content="https://lpucart.netlify.app/assets/logo.png">
+  <meta name="twitter:image" content="https://lpucart-delivery.netlify.app/assets/logo.png">
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -52,8 +52,6 @@
         <a href="history.html" class="nav-link">Order History</a>
         <a href="how-it-works.html" class="nav-link">How It Works</a>
         <a href="contact.html" class="nav-link">Contact</a>
-        <a href="delivery.html" class="nav-link"><i class="fa-solid fa-motorcycle text-amber-500"></i> Partner Login</a>
-        <a href="admin.html" class="nav-link"><i class="fa-solid fa-chart-pie text-cyan-400"></i> Admin</a>
       </nav>
 
       <div class="nav-actions">
@@ -82,35 +80,48 @@
     <a href="history.html" class="nav-link"><i class="fa-solid fa-clock-rotate-left"></i> Order History</a>
     <a href="how-it-works.html" class="nav-link"><i class="fa-solid fa-circle-question"></i> How It Works</a>
     <a href="contact.html" class="nav-link"><i class="fa-solid fa-envelope"></i> Contact Us</a>
-    <a href="delivery.html" class="nav-link"><i class="fa-solid fa-motorcycle"></i> Delivery Partner</a>
-    <a href="admin.html" class="nav-link"><i class="fa-solid fa-chart-line"></i> Admin Dashboard</a>
   </aside>
 
   <!-- MAIN TRACKING CONTENT -->
   <main class="section-py">
     <div class="container">
 
-      <!-- Search Box & Recent Orders Selector -->
-      <div class="glass-card tilt-card" style="max-width: 680px; margin: 0 auto 36px; padding: 28px;">
+      <!-- Verified Tracking Search Box -->
+      <div class="glass-card tilt-card" style="max-width: 680px; margin: 0 auto 36px; padding: 32px;">
         <div class="tilt-inner">
-          <h2 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 8px; text-align: center;">
-            <i class="fa-solid fa-location-crosshairs text-primary"></i> Track Campus Delivery
-          </h2>
-          <p style="text-align: center; color: var(--text-secondary); font-size: 0.92rem; margin-bottom: 20px;">
-            Enter your 7-character LPU Tracking ID (e.g. LPU-8842) or select from recent orders:
-          </p>
+          <div style="text-align: center; margin-bottom: 20px;">
+            <div class="section-badge" style="margin-bottom: 8px;"><i class="fa-solid fa-shield-halved"></i> Verified Student Access</div>
+            <h1 style="font-size: 1.6rem; font-weight: 800; margin: 0;">Track Campus Delivery</h1>
+            <p style="color: var(--text-secondary); font-size: 0.92rem; margin-top: 6px;">
+              Enter your Order ID (or Courier Reference) and the last 4 digits of your phone number to view live status.
+            </p>
+          </div>
 
-          <form onsubmit="handleTrackSearch(event)" style="display: flex; gap: 10px; margin-bottom: 14px;">
-            <input type="text" id="track-id-input" class="form-input" placeholder="e.g. LPU-8842"
-              style="font-family: var(--font-mono); font-weight: 700; text-transform: uppercase;">
-            <button type="submit" class="btn-3d btn-3d-orange">Track</button>
+          <form onsubmit="handleTrackSearch(event)" style="display: flex; flex-direction: column; gap: 14px;">
+            <div style="display: grid; grid-template-columns: 1.4fr 1fr; gap: 12px;">
+              <div class="form-group">
+                <label class="form-label" for="track-id-input"><i class="fa-solid fa-barcode text-primary"></i> Order / Tracking ID *</label>
+                <input type="text" id="track-id-input" class="form-input" placeholder="e.g. LPU-1234 or Courier ID" required
+                  style="font-family: var(--font-mono); font-weight: 700; text-transform: uppercase;">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="track-phone-last4"><i class="fa-solid fa-phone text-primary"></i> Last 4 Digits of Phone *</label>
+                <input type="tel" id="track-phone-last4" class="form-input" placeholder="e.g. 1234" pattern="[0-9]{4}" maxlength="4" required>
+              </div>
+            </div>
+            <button type="submit" class="btn-3d btn-3d-orange btn-md btn-full">
+              <i class="fa-solid fa-location-crosshairs"></i> Track Order Status
+            </button>
           </form>
 
-          <div style="display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap;">
-            <span style="font-size: 0.8rem; color: var(--text-muted);">Quick Demo Orders:</span>
-            <button type="button" class="btn-3d btn-3d-outline btn-sm" onclick="quickTrack('LPU-8842')">LPU-8842 (On the way)</button>
-            <button type="button" class="btn-3d btn-3d-outline btn-sm" onclick="quickTrack('LPU-8710')">LPU-8710 (Picked)</button>
-            <button type="button" class="btn-3d btn-3d-outline btn-sm" onclick="quickTrack('LPU-7650')">LPU-7650 (Delivered)</button>
+          <!-- Order Not Found Error Card -->
+          <div id="tracking-not-found" class="glass-card" style="display: none; margin-top: 20px; padding: 18px; border: 1px solid rgba(239, 68, 68, 0.4); background: rgba(239, 68, 68, 0.08); text-align: center; border-radius: var(--radius-sm);">
+            <div style="color: var(--accent-red); font-weight: 700; font-size: 1rem; margin-bottom: 4px;">
+              <i class="fa-solid fa-circle-exclamation"></i> Order not found
+            </div>
+            <div id="tracking-not-found-msg" style="font-size: 0.85rem; color: var(--text-secondary);">
+              Please check your Order ID and the last 4 digits of the phone number used when placing the order.
+            </div>
           </div>
         </div>
       </div>
@@ -187,14 +198,14 @@
                 </div>
                 <div>
                   <div style="display: flex; align-items: center; gap: 8px;">
-                    <span style="font-size: 1.15rem; font-weight: 800;" id="runner-name">Rahul Kumar</span>
-                    <span class="status-pill status-delivered" style="font-size: 0.72rem;"><i class="fa-solid fa-star"></i> 4.9 Rated</span>
+                    <span style="font-size: 1.15rem; font-weight: 800;" id="runner-name">Assigned Partner</span>
+                    <span class="status-pill status-delivered" style="font-size: 0.72rem;"><i class="fa-solid fa-circle-check"></i> Verified Partner</span>
                   </div>
                   <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 2px;" id="runner-vehicle">
-                    Hero Electric E-Scooter (PB-08-LP-1024)
+                    LPUcart Campus Delivery Runner
                   </div>
                   <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 2px;">
-                    <i class="fa-solid fa-phone"></i> +91 <span id="runner-phone">9876543210</span>
+                    <i class="fa-solid fa-phone"></i> <span id="runner-phone">+91 96800 40551</span>
                   </div>
                 </div>
               </div>
@@ -204,7 +215,7 @@
                 <button type="button" class="btn-3d btn-3d-orange btn-sm" id="whatsapp-runner-btn">
                   <i class="fa-brands fa-whatsapp"></i> Chat on WhatsApp
                 </button>
-                <a href="tel:9876543210" class="btn-3d btn-3d-outline btn-sm" id="call-runner-btn">
+                <a href="#" class="btn-3d btn-3d-outline btn-sm" id="call-runner-btn">
                   <i class="fa-solid fa-phone"></i> Call Runner
                 </a>
               </div>
@@ -214,10 +225,10 @@
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; font-size: 0.92rem; margin-top: 24px;">
               <div style="background: var(--bg-input); padding: 16px; border-radius: var(--radius-md);">
                 <div style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 4px; font-weight: 700;">STUDENT &amp; DESTINATION</div>
-                <div style="font-weight: 700;" id="detail-student-name">Aman Verma</div>
-                <div style="color: var(--text-secondary);" id="detail-hostel-room">BH-3, Room 412-B</div>
-                <div style="color: var(--text-secondary);" id="detail-student-phone">Phone: +91 9876512340</div>
-                <div style="color: var(--text-secondary); margin-top: 4px;" id="detail-time-slot">Slot: 4 PM - 6 PM</div>
+                <div style="font-weight: 700;" id="detail-student-name">Verified Student</div>
+                <div style="color: var(--text-secondary);" id="detail-hostel-room">Hostel Block • Room: Masked</div>
+                <div style="color: var(--text-secondary);" id="detail-student-phone">Phone: Verified</div>
+                <div style="color: var(--text-secondary); margin-top: 4px;" id="detail-time-slot">Slot: Delivery Slot</div>
                 <div id="detail-live-location-wrap" style="margin-top: 8px; display: none;">
                   <a id="detail-maps-link" href="#" target="_blank" style="color: var(--accent-cyan); text-decoration: underline; font-weight: 600;">
                     <i class="fa-solid fa-location-arrow"></i> View Live Campus Coordinates
@@ -227,16 +238,16 @@
 
               <div style="background: var(--bg-input); padding: 16px; border-radius: var(--radius-md);">
                 <div style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 4px; font-weight: 700;">PARCEL &amp; BILLING</div>
-                <div style="font-weight: 700;" id="detail-tracking-id">AMZ-IN-8890214</div>
-                <div style="color: var(--text-secondary);" id="detail-parcels-count">2 Parcels (Room Delivery)</div>
-                <div style="margin-top: 6px; font-weight: 700; color: var(--primary);" id="detail-total-price">Total: ₹27 (Paid via UPI)</div>
+                <div style="font-weight: 700;" id="detail-tracking-id">Tracking Reference</div>
+                <div style="color: var(--text-secondary);" id="detail-parcels-count">1 Parcel</div>
+                <div style="margin-top: 6px; font-weight: 700; color: var(--primary);" id="detail-total-price">Total: ₹11</div>
               </div>
             </div>
 
             <!-- Interactive 5-Star Rating System (Enabled when order is Delivered) -->
             <div id="rating-section" style="margin-top: 32px; padding: 24px; border-radius: var(--radius-md); background: rgba(245, 158, 11, 0.08); border: 1px dashed var(--accent-yellow); text-align: center; display: none;">
               <h3 style="font-size: 1.15rem; font-weight: 800; margin-bottom: 6px;">Rate Your Delivery Experience</h3>
-              <p style="font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 14px;">How was your parcel delivery by <span id="rating-runner-name">Rahul Kumar</span>?</p>
+              <p style="font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 14px;">How was your parcel delivery by <span id="rating-runner-name">Assigned Partner</span>?</p>
               
               <div class="star-rating-group" id="star-rating-container">
                 <i class="fa-solid fa-star star-icon" data-star="1" onclick="selectStar(1)"></i>
@@ -291,7 +302,7 @@
           <a href="index.html" class="brand-logo-pill footer-logo-pill" aria-label="LPUcart Home" style="display: inline-flex; margin-bottom: 12px;">
             <img src="/assets/logo.png" alt="LPUcart Logo" class="footer-brand-logo" width="80" height="60">
           </a>
-          <p>Campus parcel delivery bridge connecting Uni Mall courier desks directly with student hostels.</p>
+          <p>Campus parcel delivery service bringing online shopping parcels from Uni Mall directly to student hostels.</p>
         </div>
         <div>
           <h4 class="footer-heading">Pages</h4>
@@ -302,21 +313,25 @@
           </ul>
         </div>
         <div>
-          <h4 class="footer-heading">Logistics</h4>
+          <h4 class="footer-heading">Support &amp; Help</h4>
           <ul class="footer-links">
-            <li><a href="delivery.html">Runner Dashboard</a></li>
-            <li><a href="admin.html">Admin Portal</a></li>
+            <li><a href="how-it-works.html">How It Works</a></li>
+            <li><a href="contact.html">Contact Founder</a></li>
+            <li><a href="order.html">Place Delivery</a></li>
           </ul>
         </div>
         <div>
           <h4 class="footer-heading">Need Help?</h4>
           <p style="color: var(--text-secondary); font-size: 0.92rem;">
-            WhatsApp support at <strong>+91 9876543210</strong> or visit Uni Mall ground desk.
+            Contact student support: <a href="tel:919680040551" style="color: inherit;" class="support-phone-val">+91 96800 40551</a>.
           </p>
         </div>
       </div>
       <div class="footer-bottom">
-        <div>&copy; 2026 LPUcart Logistics. For LPU Campus Students.</div>
+        <div>
+          <div>&copy; 2026 LPUcart Logistics. For LPU Campus Students.</div>
+          <div style="font-size:0.82rem; color:var(--text-muted); margin-top:4px;">Student project demo. Not an official LPU service.</div>
+        </div>
       </div>
     </div>
   </footer>
@@ -331,49 +346,51 @@
     let selectedStarRating = 5;
 
     document.addEventListener("DOMContentLoaded", () => {
-      // Check query param (e.g. ?id=LPU-8842)
       const urlParams = new URLSearchParams(window.location.search);
       const queryId = urlParams.get("id");
 
       if (queryId) {
         document.getElementById("track-id-input").value = queryId;
-        loadOrderTracking(queryId);
-      } else {
-        // Auto-load most recent active order if available
-        const allOrders = window.LPU_STORAGE.getOrders();
-        if (allOrders.length > 0) {
-          quickTrack(allOrders[0].id);
+        const myOrders = window.LPU_STORAGE.getMyOrders();
+        const found = myOrders.find(o => o.id.toUpperCase() === queryId.toUpperCase() || (o.trackingId && o.trackingId.toUpperCase() === queryId.toUpperCase()));
+        if (found && found.phone) {
+          const last4 = found.phone.slice(-4);
+          document.getElementById("track-phone-last4").value = last4;
+          loadOrderTracking(queryId, last4);
         }
       }
     });
 
-    function quickTrack(orderId) {
-      document.getElementById("track-id-input").value = orderId;
-      loadOrderTracking(orderId);
-    }
-
     function handleTrackSearch(e) {
       e.preventDefault();
       const id = document.getElementById("track-id-input").value.trim();
+      const last4 = document.getElementById("track-phone-last4").value.trim();
       if (!id) {
-        showToast("Please enter an Order ID", "error");
+        showToast("Please enter an Order ID or Courier Reference", "error");
         return;
       }
-      loadOrderTracking(id);
+      if (!last4 || last4.length !== 4) {
+        showToast("Please enter the 4-digit phone suffix used for the order", "error");
+        return;
+      }
+      loadOrderTracking(id, last4);
     }
 
-    function loadOrderTracking(orderId) {
-      const order = window.LPU_STORAGE.getOrderById(orderId);
+    function loadOrderTracking(orderId, phoneLast4) {
+      const res = window.LPU_STORAGE.verifyTrackAccess(orderId, phoneLast4);
       const resContainer = document.getElementById("tracking-result-container");
       const notFound = document.getElementById("tracking-not-found");
+      const notFoundMsg = document.getElementById("tracking-not-found-msg");
 
-      if (!order) {
+      if (!res.success) {
         resContainer.style.display = "none";
         notFound.style.display = "block";
-        showToast("Order not found", "error");
+        if (notFoundMsg) notFoundMsg.textContent = res.error;
+        showToast(res.error, "error");
         return;
       }
 
+      const order = res.order;
       currentLoadedOrder = order;
       notFound.style.display = "none";
       resContainer.style.display = "block";
@@ -385,29 +402,27 @@
       // 2. Status Badge & Stepper
       const statusBadge = document.getElementById("order-status-badge");
       statusBadge.textContent = order.status;
-      statusBadge.className = "status-pill";
+      statusBadge.className = "status-pill status-" + (order.status || "placed").toLowerCase().replace(/\s+/g, '');
 
       const fill = document.getElementById("stepper-fill");
       const nodePicked = document.getElementById("step-node-picked");
       const nodeOnTheWay = document.getElementById("step-node-ontheway");
       const nodeDelivered = document.getElementById("step-node-delivered");
 
-      // Reset stepper nodes
       nodePicked.className = "step-node";
       nodeOnTheWay.className = "step-node";
       nodeDelivered.className = "step-node";
 
-      if (order.status === "Placed" || order.status === "Picked") {
-        statusBadge.classList.add("status-picked");
+      if (order.status === "Placed" || order.status === "Assigned") {
         fill.style.width = "0%";
+      } else if (order.status === "Picked") {
+        fill.style.width = "25%";
         nodePicked.classList.add("active");
       } else if (order.status === "On the way") {
-        statusBadge.classList.add("status-ontheway");
-        fill.style.width = "50%";
+        fill.style.width = "65%";
         nodePicked.classList.add("completed");
         nodeOnTheWay.classList.add("active");
-      } else if (order.status === "Delivered") {
-        statusBadge.classList.add("status-delivered");
+      } else if (order.status === "Delivered" || order.status === "Confirmed") {
         fill.style.width = "100%";
         nodePicked.classList.add("completed");
         nodeOnTheWay.classList.add("completed");
@@ -417,25 +432,39 @@
       // 3. OTP Box
       document.getElementById("track-otp-number").textContent = order.otp;
 
-      // 4. Delivery Runner
-      const db = order.deliveryBoy || window.LPU_STORAGE.DEMO_DELIVERY_CREDS.profile;
-      document.getElementById("runner-name").textContent = db.name;
-      document.getElementById("runner-vehicle").textContent = db.vehicle;
-      document.getElementById("runner-phone").textContent = db.phone;
+      // 4. Delivery Runner (Shows First Name Only as per PART E.2)
+      document.getElementById("runner-name").textContent = order.runnerFirstName || "Assigned Partner";
+      document.getElementById("runner-vehicle").textContent = "LPUcart Campus Delivery Runner";
+      const runnerPhoneVal = order.runnerPhone || "919680040551";
+      const displayPhone = (runnerPhoneVal === "919680040551") ? "+91 96800 40551" : `+91 ${runnerPhoneVal}`;
+      document.getElementById("runner-phone").textContent = displayPhone;
+
       const callBtn = document.getElementById("call-runner-btn");
-      if (callBtn) callBtn.href = `tel:${db.phone}`;
+      if (callBtn) {
+        const cleanPhone = (order.runnerPhone || "").replace(/[^0-9]/g, "");
+        if (cleanPhone.length >= 10) {
+          callBtn.href = `tel:${cleanPhone}`;
+          callBtn.onclick = null;
+        } else {
+          callBtn.href = "#";
+          callBtn.onclick = (e) => {
+            e.preventDefault();
+            window.showToast ? showToast("Contact Phone: " + order.runnerPhone, "info") : alert("Contact: " + order.runnerPhone);
+          };
+        }
+      }
 
       const waBtn = document.getElementById("whatsapp-runner-btn");
       if (waBtn) {
         waBtn.onclick = function () {
-          window.openWhatsAppOrder(db.phone, order.id, order.name);
+          window.openWhatsAppOrder(order.runnerPhone, order.id, "Student");
         };
       }
 
-      // 5. Details Grid
-      document.getElementById("detail-student-name").textContent = order.name;
-      document.getElementById("detail-hostel-room").textContent = `${order.hostelBlock} • Room: ${order.roomNo}`;
-      document.getElementById("detail-student-phone").textContent = `Phone: +91 ${order.phone}`;
+      // 5. Details Grid (Privacy Preserved: Room number hidden, Phone masked)
+      document.getElementById("detail-student-name").textContent = "Verified Student";
+      document.getElementById("detail-hostel-room").textContent = `${order.hostelBlock} • Room: Masked`;
+      document.getElementById("detail-student-phone").textContent = `Phone: Verified (ends in ${phoneLast4})`;
 
       const liveLocWrap = document.getElementById("detail-live-location-wrap");
       if (order.liveLocation && order.liveLocation.mapsUrl) {
@@ -445,20 +474,18 @@
         liveLocWrap.style.display = "none";
       }
 
-      document.getElementById("detail-tracking-id").textContent = `Courier Ref: ${order.trackingId}`;
+      document.getElementById("detail-tracking-id").textContent = `Ref: ${order.trackingId}`;
       const typeLabel = order.deliveryType === "room" ? "Up to Room" : (order.deliveryType === "live" ? "Live Location" : "Hostel Gate");
       document.getElementById("detail-parcels-count").textContent = `${order.parcels} Parcel(s) • ${typeLabel}`;
-      const timeSlotEl = document.getElementById("detail-time-slot");
-      if (timeSlotEl) timeSlotEl.textContent = `Slot: ${order.timeSlot}`;
 
       const totalPrice = (order.priceBreakdown && order.priceBreakdown.total !== undefined) ? order.priceBreakdown.total : 11;
-      document.getElementById("detail-total-price").textContent = `Total: ₹${totalPrice} (${order.paymentStatus} via ${order.paymentMethod})`;
+      document.getElementById("detail-total-price").textContent = `Total: ₹${totalPrice} (${order.paymentStatus || 'Paid'})`;
 
-      // 6. Rating Section (Shown if Delivered)
+      // 6. Rating Section (Shown if Delivered or Confirmed)
       const ratingSection = document.getElementById("rating-section");
-      if (order.status === "Delivered") {
+      if (order.status === "Delivered" || order.status === "Confirmed") {
         ratingSection.style.display = "block";
-        document.getElementById("rating-runner-name").textContent = db.name;
+        document.getElementById("rating-runner-name").textContent = order.runnerFirstName || "Partner";
         if (order.rating && order.rating > 0) {
           selectStar(order.rating);
           document.getElementById("rating-feedback-input").value = order.feedback || "";

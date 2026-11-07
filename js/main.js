@@ -1,10 +1,26 @@
 /**
  * LPUcart - Core Website Script & Master Configuration
  * =====================================================
- * PART 1: MASTER HOSTEL & CAMPUS BUILDINGS CONFIGURATION
- * Edit this single object to update all hostels across the entire website.
+ * MASTER OWNER CONFIGURATION
+ * Single configuration object used across the entire website.
  */
 
+const OWNER_CONFIG = {
+  OWNER_NAME: "Sumit Gurjar",
+  OWNER_PHONE: "919680040551",
+  OWNER_PHONE_DISPLAY: "+91 96800 40551",
+  OWNER_EMAIL: "sumitgurjar00129@gmail.com"
+};
+
+const OWNER_NAME = OWNER_CONFIG.OWNER_NAME;
+const OWNER_PHONE = OWNER_CONFIG.OWNER_PHONE;
+const OWNER_PHONE_DISPLAY = OWNER_CONFIG.OWNER_PHONE_DISPLAY;
+const OWNER_EMAIL = OWNER_CONFIG.OWNER_EMAIL;
+
+/**
+ * MASTER HOSTEL & CAMPUS BUILDINGS CONFIGURATION
+ * Edit this single object to update all hostels across the entire website.
+ */
 const HOSTELS = {
   boys: [
     "Boys Hostel 1",
@@ -26,8 +42,24 @@ const HOSTELS = {
   other: [] // extra buildings can be added here later
 };
 
-// Make HOSTELS available globally across all pages and scripts
+// Backwards-compatible aliases
+const SUPPORT_CONFIG = {
+  SUPPORT_PHONE: OWNER_PHONE,
+  SUPPORT_EMAIL: OWNER_EMAIL
+};
+const SUPPORT_PHONE = OWNER_PHONE;
+const SUPPORT_EMAIL = OWNER_EMAIL;
+
+// Make globally available across all pages and scripts
+window.OWNER_CONFIG = OWNER_CONFIG;
+window.OWNER_NAME = OWNER_NAME;
+window.OWNER_PHONE = OWNER_PHONE;
+window.OWNER_PHONE_DISPLAY = OWNER_PHONE_DISPLAY;
+window.OWNER_EMAIL = OWNER_EMAIL;
 window.HOSTELS = HOSTELS;
+window.SUPPORT_CONFIG = SUPPORT_CONFIG;
+window.SUPPORT_PHONE = SUPPORT_PHONE;
+window.SUPPORT_EMAIL = SUPPORT_EMAIL;
 
 /**
  * Determine the category of a given hostel: 'boys' | 'girls' | 'other'
@@ -445,11 +477,48 @@ window.addEventListener("keydown", e => {
 // 10. WHATSAPP & PHONE HELPERS
 // ==========================================
 function openWhatsAppOrder(phone, orderId, studentName = "") {
+  const targetPhone = phone || (window.OWNER_CONFIG && window.OWNER_CONFIG.OWNER_PHONE) || "919680040551";
+  const cleanPhone = targetPhone.replace(/[^0-9]/g, "");
   const text = encodeURIComponent(
     `Hello LPUcart Delivery! Regarding order ${orderId} (${studentName}): When will my parcel be delivered?`
   );
-  const cleanPhone = (phone || "9876543210").replace(/[^0-9]/g, "");
-  window.open(`https://wa.me/91${cleanPhone}?text=${text}`, "_blank");
+  window.open(`https://wa.me/${cleanPhone}?text=${text}`, "_blank");
+}
+
+function applySupportConfig() {
+  const name = (window.OWNER_CONFIG && window.OWNER_CONFIG.OWNER_NAME) || "Sumit Gurjar";
+  const phone = (window.OWNER_CONFIG && window.OWNER_CONFIG.OWNER_PHONE) || "919680040551";
+  const phoneDisplay = (window.OWNER_CONFIG && window.OWNER_CONFIG.OWNER_PHONE_DISPLAY) || "+91 96800 40551";
+  const email = (window.OWNER_CONFIG && window.OWNER_CONFIG.OWNER_EMAIL) || "sumitgurjar00129@gmail.com";
+
+  document.querySelectorAll(".owner-name-val, #owner-name-val").forEach(el => {
+    el.textContent = name;
+  });
+
+  document.querySelectorAll(".owner-phone-val, #owner-phone-val, .support-phone-val, #support-phone-val, #contact-phone-display, #runner-phone, .support-phone-text").forEach(el => {
+    el.textContent = phoneDisplay;
+  });
+
+  document.querySelectorAll(".owner-email-val, #owner-email-val, .support-email-val, #support-email-val").forEach(el => {
+    el.textContent = email;
+    if (el.tagName === "A") {
+      el.href = `mailto:${email}`;
+    }
+  });
+
+  const waBtn = document.getElementById("contact-whatsapp-link");
+  if (waBtn) {
+    const cleanPhone = phone.replace(/[^0-9]/g, "");
+    waBtn.href = `https://wa.me/${cleanPhone}`;
+    waBtn.onclick = null;
+  }
+
+  const callBtn = document.getElementById("call-runner-btn");
+  if (callBtn) {
+    const cleanPhone = phone.replace(/[^0-9]/g, "");
+    callBtn.href = "tel:" + cleanPhone;
+    callBtn.onclick = null;
+  }
 }
 
 // INITIALIZE ON DOM READY
@@ -461,6 +530,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initScrollReveal();
   setActiveNavLink();
   initMobileMenu();
+  applySupportConfig();
 });
 
 // Window Exports
@@ -470,3 +540,4 @@ window.openModal = openModal;
 window.closeModal = closeModal;
 window.openWhatsAppOrder = openWhatsAppOrder;
 window.init3DTiltCards = init3DTiltCards;
+window.applySupportConfig = applySupportConfig;

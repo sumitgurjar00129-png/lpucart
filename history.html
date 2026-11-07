@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Order History - LPUcart - Uni Mall se Hostel Parcel Delivery</title>
   <meta name="description" content="View your past campus parcel deliveries, booking receipts, handover OTP logs, and re-order with one click on LPUcart.">
-  <link rel="canonical" href="https://lpucart.netlify.app/history.html">
+  <link rel="canonical" href="https://lpucart-delivery.netlify.app/history">
 
   <!-- Favicon & Touch Icons -->
   <link rel="icon" href="/favicon.png" type="image/png">
@@ -14,16 +14,16 @@
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="LPUcart">
-  <meta property="og:url" content="https://lpucart.netlify.app/history.html">
+  <meta property="og:url" content="https://lpucart-delivery.netlify.app/history">
   <meta property="og:title" content="Order History - LPUcart - Uni Mall se Hostel Parcel Delivery">
   <meta property="og:description" content="View your past campus parcel deliveries, booking receipts, handover OTP logs, and re-order with one click on LPUcart.">
-  <meta property="og:image" content="https://lpucart.netlify.app/assets/logo.png">
+  <meta property="og:image" content="https://lpucart-delivery.netlify.app/assets/logo.png">
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Order History - LPUcart - Uni Mall se Hostel Parcel Delivery">
   <meta name="twitter:description" content="View your past campus parcel deliveries, booking receipts, handover OTP logs, and re-order with one click on LPUcart.">
-  <meta name="twitter:image" content="https://lpucart.netlify.app/assets/logo.png">
+  <meta name="twitter:image" content="https://lpucart-delivery.netlify.app/assets/logo.png">
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -52,8 +52,6 @@
         <a href="history.html" class="nav-link active">Order History</a>
         <a href="how-it-works.html" class="nav-link">How It Works</a>
         <a href="contact.html" class="nav-link">Contact</a>
-        <a href="delivery.html" class="nav-link"><i class="fa-solid fa-motorcycle text-amber-500"></i> Partner Login</a>
-        <a href="admin.html" class="nav-link"><i class="fa-solid fa-chart-pie text-cyan-400"></i> Admin</a>
       </nav>
 
       <div class="nav-actions">
@@ -82,8 +80,6 @@
     <a href="history.html" class="nav-link active"><i class="fa-solid fa-clock-rotate-left"></i> Order History</a>
     <a href="how-it-works.html" class="nav-link"><i class="fa-solid fa-circle-question"></i> How It Works</a>
     <a href="contact.html" class="nav-link"><i class="fa-solid fa-envelope"></i> Contact Us</a>
-    <a href="delivery.html" class="nav-link"><i class="fa-solid fa-motorcycle"></i> Delivery Partner</a>
-    <a href="admin.html" class="nav-link"><i class="fa-solid fa-chart-line"></i> Admin Dashboard</a>
   </aside>
 
   <!-- MAIN HISTORY PAGE -->
@@ -134,7 +130,7 @@
           <a href="index.html" class="brand-logo-pill footer-logo-pill" aria-label="LPUcart Home" style="display: inline-flex; margin-bottom: 12px;">
             <img src="/assets/logo.png" alt="LPUcart Logo" class="footer-brand-logo" width="80" height="60">
           </a>
-          <p>Campus parcel delivery bridge connecting Uni Mall courier desks directly with student hostels.</p>
+          <p>Campus parcel delivery service bringing online shopping parcels from Uni Mall directly to student hostels.</p>
         </div>
         <div>
           <h4 class="footer-heading">Pages</h4>
@@ -159,7 +155,10 @@
         </div>
       </div>
       <div class="footer-bottom">
-        <div>&copy; 2026 LPUcart Logistics. For LPU Campus Students.</div>
+        <div>
+          <div>&copy; 2026 LPUcart Logistics. For LPU Campus Students.</div>
+          <div style="font-size:0.82rem; color:var(--text-muted); margin-top:4px;">Student project demo. Not an official LPU service.</div>
+        </div>
       </div>
     </div>
   </footer>
@@ -188,12 +187,12 @@
     }
 
     function renderOrders() {
-      const allOrders = window.LPU_STORAGE.getOrders();
+      const allOrders = window.LPU_STORAGE ? window.LPU_STORAGE.getMyOrders() : [];
       const searchQuery = (document.getElementById("history-search").value || "").trim().toLowerCase();
 
       // Counts
-      const activeCount = allOrders.filter(o => o.status !== "Delivered").length;
-      const deliveredCount = allOrders.filter(o => o.status === "Delivered").length;
+      const activeCount = allOrders.filter(o => o.status !== "Delivered" && o.status !== "Confirmed").length;
+      const deliveredCount = allOrders.filter(o => o.status === "Delivered" || o.status === "Confirmed").length;
 
       document.getElementById("count-all").textContent = allOrders.length;
       document.getElementById("count-active").textContent = activeCount;
@@ -202,9 +201,9 @@
       let filtered = allOrders;
 
       if (activeFilter === "active") {
-        filtered = filtered.filter(o => o.status !== "Delivered");
+        filtered = filtered.filter(o => o.status !== "Delivered" && o.status !== "Confirmed");
       } else if (activeFilter === "delivered") {
-        filtered = filtered.filter(o => o.status === "Delivered");
+        filtered = filtered.filter(o => o.status === "Delivered" || o.status === "Confirmed");
       }
 
       if (searchQuery) {
@@ -229,12 +228,15 @@
       emptyState.style.display = "none";
       grid.innerHTML = filtered.map(order => {
         let statusClass = "status-picked";
+        if (order.status === "Placed") statusClass = "status-assigned";
+        if (order.status === "Assigned") statusClass = "status-assigned";
         if (order.status === "On the way") statusClass = "status-ontheway";
-        if (order.status === "Delivered") statusClass = "status-delivered";
+        if (order.status === "Delivered" || order.status === "Confirmed") statusClass = "status-delivered";
 
         const formattedDate = new Date(order.createdAt).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' });
         const totalPrice = (order.priceBreakdown && order.priceBreakdown.total !== undefined) ? order.priceBreakdown.total : 11;
         const typeBadge = order.deliveryType === "room" ? "To Room (+₹10)" : (order.deliveryType === "live" ? "Live GPS Location" : "Hostel Gate");
+        const runnerFirstName = order.deliveryBoy && order.deliveryBoy.name ? order.deliveryBoy.name.split(' ')[0] : 'Assigning...';
 
         return `
           <div class="glass-card tilt-card" style="padding: 24px;">
@@ -275,7 +277,7 @@
               <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; padding-top: 10px; border-top: 1px solid var(--border-subtle);">
                 <div style="display: flex; align-items: center; gap: 8px;">
                   <span style="font-size: 0.85rem; color: var(--text-secondary);">Runner:</span>
-                  <strong style="font-size: 0.9rem;">${(order.deliveryBoy && order.deliveryBoy.name) || 'Rahul Kumar'}</strong>
+                  <strong style="font-size: 0.9rem;">${runnerFirstName}</strong>
                   ${order.rating ? `<span style="color: #f59e0b; font-size: 0.85rem;">★ ${order.rating}</span>` : ''}
                 </div>
 

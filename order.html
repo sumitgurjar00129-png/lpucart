@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Order Delivery - LPUcart - Uni Mall se Hostel Parcel Delivery</title>
   <meta name="description" content="Place a campus parcel delivery order from Uni Mall to your hostel gate, room, or live GPS coordinates. Fast, transparent pricing starting at ₹11.">
-  <link rel="canonical" href="https://lpucart.netlify.app/order.html">
+  <link rel="canonical" href="https://lpucart-delivery.netlify.app/order">
 
   <!-- Favicon & Touch Icons -->
   <link rel="icon" href="/favicon.png" type="image/png">
@@ -14,16 +14,16 @@
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="LPUcart">
-  <meta property="og:url" content="https://lpucart.netlify.app/order.html">
+  <meta property="og:url" content="https://lpucart-delivery.netlify.app/order">
   <meta property="og:title" content="Order Delivery - LPUcart - Uni Mall se Hostel Parcel Delivery">
   <meta property="og:description" content="Place a campus parcel delivery order from Uni Mall to your hostel gate, room, or live GPS coordinates. Fast, transparent pricing starting at ₹11.">
-  <meta property="og:image" content="https://lpucart.netlify.app/assets/logo.png">
+  <meta property="og:image" content="https://lpucart-delivery.netlify.app/assets/logo.png">
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Order Delivery - LPUcart - Uni Mall se Hostel Parcel Delivery">
   <meta name="twitter:description" content="Place a campus parcel delivery order from Uni Mall to your hostel gate, room, or live GPS coordinates. Fast, transparent pricing starting at ₹11.">
-  <meta name="twitter:image" content="https://lpucart.netlify.app/assets/logo.png">
+  <meta name="twitter:image" content="https://lpucart-delivery.netlify.app/assets/logo.png">
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -52,8 +52,6 @@
         <a href="history.html" class="nav-link">Order History</a>
         <a href="how-it-works.html" class="nav-link">How It Works</a>
         <a href="contact.html" class="nav-link">Contact</a>
-        <a href="delivery.html" class="nav-link"><i class="fa-solid fa-motorcycle text-amber-500"></i> Partner Login</a>
-        <a href="admin.html" class="nav-link"><i class="fa-solid fa-chart-pie text-cyan-400"></i> Admin</a>
       </nav>
 
       <div class="nav-actions">
@@ -82,8 +80,6 @@
     <a href="history.html" class="nav-link"><i class="fa-solid fa-clock-rotate-left"></i> Order History</a>
     <a href="how-it-works.html" class="nav-link"><i class="fa-solid fa-circle-question"></i> How It Works</a>
     <a href="contact.html" class="nav-link"><i class="fa-solid fa-envelope"></i> Contact Us</a>
-    <a href="delivery.html" class="nav-link"><i class="fa-solid fa-motorcycle"></i> Delivery Partner</a>
-    <a href="admin.html" class="nav-link"><i class="fa-solid fa-chart-line"></i> Admin Dashboard</a>
   </aside>
 
   <!-- MAIN ORDER PAGE CONTENT -->
@@ -114,7 +110,7 @@
                 <label class="form-label" for="student-phone">
                   <i class="fa-solid fa-phone text-amber-500"></i> Mobile Number (10 Digits) *
                 </label>
-                <input type="tel" id="student-phone" class="form-input" placeholder="e.g. 9876543210" pattern="[0-9]{10}" maxlength="10" required>
+                <input type="tel" id="student-phone" class="form-input" placeholder="e.g. 9812345678" pattern="[0-9]{10}" maxlength="10" required>
               </div>
 
               <!-- Delivery Destination Type Selector (3D Radio Cards) -->
@@ -236,13 +232,13 @@
                   <i class="fa-solid fa-barcode text-amber-500"></i> Parcel Tracking ID or Order ID *
                 </label>
                 <input type="text" id="tracking-id" class="form-input" placeholder="e.g. Amazon: 403-1284920-118274 or Flipkart / Myntra ID" required>
-                <small style="color: var(--text-muted); font-size: 0.82rem;">This helps the Uni Mall desk locate your specific package quickly.</small>
+                <small style="color: var(--text-muted); font-size: 0.82rem;">This helps the runner locate your specific package quickly at Uni Mall.</small>
               </div>
 
               <!-- Parcel Photo Upload (Stored as Base64 in localStorage) -->
               <div class="form-group form-col-full">
                 <label class="form-label">
-                  <i class="fa-solid fa-camera text-amber-500"></i> Upload Courier SMS / Parcel Screenshot (Optional)
+                  <i class="fa-solid fa-camera text-amber-500"></i> Upload Courier Message / Parcel Screenshot (Optional)
                 </label>
                 <label class="file-upload-box">
                   <input type="file" id="parcel-photo-input" accept="image/*" onchange="handlePhotoUpload(event)">
@@ -286,7 +282,8 @@
               <!-- UPI QR Code Showcase Preview (Shown if UPI selected) -->
               <div class="form-group form-col-full" id="upi-display-card" style="text-align: center; padding: 18px; border-radius: var(--radius-md); background: rgba(255, 107, 0, 0.05); border: 1px solid var(--border-card);">
                 <div style="font-weight: 700; margin-bottom: 8px;">Instant UPI Scan &amp; Pay</div>
-                <img src="/assets/upi-qr.svg" alt="UPI QR" style="width: 170px; margin: 0 auto 10px; border-radius: 12px; box-shadow: var(--shadow-3d);">
+                <img src="/assets/upi-qr.svg" alt="UPI QR" style="width: 170px; margin: 0 auto 6px; border-radius: 12px; box-shadow: var(--shadow-3d);">
+                <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px;">Demo QR - no real payment</div>
                 <div style="font-size: 0.84rem; color: var(--text-secondary);">Scan via any UPI app or complete payment right after placing.</div>
               </div>
 
@@ -423,7 +420,7 @@
         </div>
         <div class="otp-number" id="modal-otp-display">0000</div>
         <div style="font-size: 0.82rem; color: var(--text-muted);">
-          Share this 4-digit code with runner <strong id="modal-runner-name" style="color: var(--primary);">Rahul Kumar</strong> at the time of delivery.
+          Share this 4-digit code with runner <strong id="modal-runner-name" style="color: var(--primary);">Assigned Partner</strong> at the time of delivery.
         </div>
       </div>
 
@@ -461,7 +458,7 @@
           <a href="index.html" class="brand-logo-pill footer-logo-pill" aria-label="LPUcart Home" style="display: inline-flex; margin-bottom: 12px;">
             <img src="/assets/logo.png" alt="LPUcart Logo" class="footer-brand-logo" width="80" height="60">
           </a>
-          <p>Campus parcel delivery bridge connecting Uni Mall courier desks directly with student hostels.</p>
+          <p>Campus parcel delivery service bringing online shopping parcels from Uni Mall directly to student hostels.</p>
         </div>
         <div>
           <h4 class="footer-heading">Pages</h4>
@@ -472,10 +469,11 @@
           </ul>
         </div>
         <div>
-          <h4 class="footer-heading">Partner</h4>
+          <h4 class="footer-heading">Support &amp; Help</h4>
           <ul class="footer-links">
-            <li><a href="delivery.html">Delivery Login</a></li>
-            <li><a href="admin.html">Admin Portal</a></li>
+            <li><a href="how-it-works.html">How It Works</a></li>
+            <li><a href="contact.html">Contact Founder</a></li>
+            <li><a href="track.html">Track Order</a></li>
           </ul>
         </div>
         <div>
@@ -486,7 +484,10 @@
         </div>
       </div>
       <div class="footer-bottom">
-        <div>&copy; 2026 LPUcart Logistics. For LPU Campus Students.</div>
+        <div>
+          <div>&copy; 2026 LPUcart Logistics. For LPU Campus Students.</div>
+          <div style="font-size:0.82rem; color:var(--text-muted); margin-top:4px;">Student project demo. Not an official LPU service.</div>
+        </div>
       </div>
     </div>
   </footer>
@@ -879,7 +880,8 @@
         document.getElementById("modal-order-id").textContent = newOrder.id;
         document.getElementById("modal-order-total").textContent = useWeeklyPass ? "₹0 (Pass Used)" : `₹${quote.total}`;
         document.getElementById("modal-order-payment").textContent = newOrder.paymentStatus;
-        document.getElementById("modal-runner-name").textContent = newOrder.deliveryBoy.name;
+        const assignedRunner = (newOrder.deliveryBoy && newOrder.deliveryBoy.name) || newOrder.partnerName || "Assigned Partner";
+        document.getElementById("modal-runner-name").textContent = assignedRunner;
 
         openModal("order-success-modal");
         showToast(`Order ${newOrder.id} booked! OTP is ${newOrder.otp}`, "success");

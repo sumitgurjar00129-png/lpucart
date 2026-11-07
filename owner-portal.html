@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Owner Portal - LPUcart</title>
+  
+  <!-- Favicon & Touch Icons -->
+  <link rel="icon" href="/favicon.png" type="image/png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Main Stylesheet -->
+  <link rel="stylesheet" href="/css/style.css">
+
+  <style>
+    .portal-nav-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      background: rgba(255, 107, 0, 0.15);
+      color: var(--primary);
+      border: 1px solid var(--primary);
+    }
+    .portal-tabs-bar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 12px;
+    }
+    .portal-tab-btn {
+      padding: 10px 18px;
+      border-radius: var(--radius-sm);
+      font-weight: 700;
+      font-size: 0.92rem;
+      background: var(--bg-card);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-card);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+    .portal-tab-btn:hover {
+      color: var(--text-primary);
+      border-color: var(--primary);
+    }
+    .portal-tab-btn.active {
+      background: var(--primary);
+      color: #ffffff;
+      border-color: var(--primary);
+      box-shadow: 0 4px 12px rgba(255, 107, 0, 0.3);
+    }
+    .partner-card-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .partner-card-modal.show {
+      display: flex;
+    }
+    .partner-share-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius-md);
+      padding: 28px;
+      max-width: 500px;
+      width: 100%;
+      box-shadow: var(--shadow-3d);
+      animation: modalFadeIn 0.25s ease;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Portal Header -->
+  <header class="navbar">
+    <div class="container nav-container">
+      <div style="display: flex; align-items: center; gap: 14px;">
+        <a href="index.html" class="nav-logo brand-logo-pill" aria-label="LPUcart Home">
+          <img src="/assets/logo.png" alt="LPUcart Logo" class="nav-brand-logo" width="64" height="48">
+        </a>
+        <span class="portal-nav-badge"><i class="fa-solid fa-user-shield"></i> Owner Portal</span>
+      </div>
+
+      <div class="nav-actions">
+        <button class="theme-toggle-btn" onclick="toggleTheme()" aria-label="Toggle Theme">
+          <i class="fa-solid fa-sun"></i>
+        </button>
+        <button id="owner-logout-btn" class="btn-3d btn-3d-outline btn-sm" onclick="handleOwnerLogout()" style="display: none;">
+          <i class="fa-solid fa-arrow-right-from-bracket"></i> Logout
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="section-py">
+    <div class="container">
+
+      <!-- Notice Banner -->
+      <div class="glass-card" style="padding: 12px 20px; margin-bottom: 24px; background: rgba(255, 107, 0, 0.1); border: 1px solid var(--primary); display: flex; align-items: center; gap: 12px; font-size: 0.9rem; border-radius: var(--radius-sm);">
+        <i class="fa-solid fa-circle-info text-amber-500" style="font-size: 1.1rem;"></i>
+        <span><strong>Notice:</strong> Demo mode: data is stored in this browser only.</span>
+      </div>
+
+      <!-- 1. LOGIN CONTAINER (Shown when logged out) -->
+      <div id="login-container" style="max-width: 480px; margin: 40px auto 80px;">
+        <div class="glass-card form-card tilt-card" style="padding: 38px;">
+          <div class="text-center" style="margin-bottom: 24px;">
+            <div class="brand-logo-pill" style="display: inline-flex; margin-bottom: 14px;">
+              <img src="/assets/logo.png" alt="LPUcart Logo" class="login-brand-logo" width="107" height="80">
+            </div>
+            <h1 style="font-size: 1.6rem; font-weight: 800;">Owner Portal Login</h1>
+            <p style="color: var(--text-secondary); font-size: 0.88rem;">Private Management Dashboard for Sumit Gurjar</p>
+          </div>
+
+          <form onsubmit="handleOwnerLogin(event)">
+            <div style="display: flex; flex-direction: column; gap: 18px;">
+              <div class="form-group">
+                <label class="form-label" for="owner-username"><i class="fa-solid fa-user-shield"></i> Username</label>
+                <input type="text" id="owner-username" class="form-input" placeholder="owner" required autocomplete="username">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="owner-password"><i class="fa-solid fa-lock"></i> Password</label>
+                <input type="password" id="owner-password" class="form-input" placeholder="••••••••" required autocomplete="current-password">
+              </div>
+
+              <button type="submit" id="owner-login-btn" class="btn-3d btn-3d-orange btn-lg btn-full" style="margin-top: 8px;">
+                <i class="fa-solid fa-right-to-bracket"></i> Login as Owner
+              </button>
+            </div>
+          </form>
+
+          <div id="login-lockout-msg" style="display: none; margin-top: 16px; color: var(--accent-red); font-size: 0.85rem; text-align: center;"></div>
+        </div>
+      </div>
+
+      <!-- 2. FIRST-LOGIN FORCE PASSWORD CHANGE MODAL -->
+      <div id="force-password-modal" class="partner-card-modal">
+        <div class="partner-share-box">
+          <div style="text-align: center; margin-bottom: 18px;">
+            <i class="fa-solid fa-shield-halved text-amber-500" style="font-size: 2.2rem; margin-bottom: 8px;"></i>
+            <h2 style="font-size: 1.35rem; font-weight: 800;">First Login: Set New Password</h2>
+            <p style="color: var(--text-secondary); font-size: 0.85rem;">For your security, please update your temporary password to a permanent one.</p>
+          </div>
+          <form onsubmit="handleForcePasswordSubmit(event)">
+            <div style="display: flex; flex-direction: column; gap: 14px;">
+              <div class="form-group">
+                <label class="form-label">Current / Temporary Password *</label>
+                <input type="password" id="force-current-password" class="form-input" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">New Password (min 6 chars) *</label>
+                <input type="password" id="force-new-password" class="form-input" minlength="6" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Confirm New Password *</label>
+                <input type="password" id="force-confirm-password" class="form-input" minlength="6" required>
+              </div>
+              <button type="submit" class="btn-3d btn-3d-orange btn-md btn-full" style="margin-top: 8px;">
+                <i class="fa-solid fa-key"></i> Save &amp; Continue to Dashboard
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- 3. DASHBOARD MAIN CONTAINER (Shown when authenticated) -->
+      <div id="dashboard-container" style="display: none;">
+
+        <!-- Navigation Tabs Bar -->
+        <div class="portal-tabs-bar">
+          <button class="portal-tab-btn active" id="tab-btn-dashboard" onclick="switchOwnerTab('dashboard')">
+            <i class="fa-solid fa-chart-pie"></i> Dashboard
+          </button>
+          <button class="portal-tab-btn" id="tab-btn-partners" onclick="switchOwnerTab('partners')">
+            <i class="fa-solid fa-users"></i> Delivery Partners (<span id="tab-count-partners">0</span>)
+          </button>
+          <button class="portal-tab-btn" id="tab-btn-orders" onclick="switchOwnerTab('orders')">
+            <i class="fa-solid fa-boxes-stacked"></i> Orders Ledger (<span id="tab-count-orders">0</span>)
+          </button>
+          <button class="portal-tab-btn" id="tab-btn-messages" onclick="switchOwnerTab('messages')">
+            <i class="fa-solid fa-envelope"></i> Support Messages (<span id="tab-count-messages">0</span>)
+          </button>
+          <button class="portal-tab-btn" id="tab-btn-settings" onclick="switchOwnerTab('settings')">
+            <i class="fa-solid fa-gear"></i> Settings
+          </button>
+        </div>
+
+        <!-- TAB 1: DASHBOARD OVERVIEW -->
+        <div id="tab-content-dashboard">
+          <!-- Metric KPI Cards -->
+          <div class="dashboard-grid">
+            <div class="glass-card tilt-card dash-stat-card">
+              <div class="dash-stat-icon" style="background: rgba(255, 107, 0, 0.15); color: var(--primary);">
+                <i class="fa-solid fa-calendar-day"></i>
+              </div>
+              <div>
+                <div style="font-size: 2rem; font-weight: 900;" id="kpi-today-orders">0</div>
+                <div style="font-size: 0.85rem; color: var(--text-secondary);">Today's Bookings</div>
+              </div>
+            </div>
+
+            <div class="glass-card tilt-card dash-stat-card">
+              <div class="dash-stat-icon" style="background: rgba(16, 185, 129, 0.15); color: var(--accent-green);">
+                <i class="fa-solid fa-indian-rupee-sign"></i>
+              </div>
+              <div>
+                <div style="font-size: 2rem; font-weight: 900; color: var(--accent-green);" id="kpi-total-revenue">₹0</div>
+                <div style="font-size: 0.85rem; color: var(--text-secondary);">Delivered Revenue</div>
+              </div>
+            </div>
+
+            <div class="glass-card tilt-card dash-stat-card">
+              <div class="dash-stat-icon" style="background: rgba(6, 182, 212, 0.15); color: var(--accent-cyan);">
+                <i class="fa-solid fa-boxes-stacked"></i>
+              </div>
+              <div>
+                <div style="font-size: 2rem; font-weight: 900;" id="kpi-total-orders">0</div>
+                <div style="font-size: 0.85rem; color: var(--text-secondary);">Total Campus Orders</div>
+              </div>
+            </div>
+
+            <div class="glass-card tilt-card dash-stat-card">
+              <div class="dash-stat-icon" style="background: rgba(245, 158, 11, 0.15); color: var(--accent-yellow);">
+                <i class="fa-solid fa-person-biking"></i>
+              </div>
+              <div>
+                <div style="font-size: 2rem; font-weight: 900;" id="kpi-active-partners">0</div>
+                <div style="font-size: 0.85rem; color: var(--text-secondary);">Active Runners</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3D Canvas Charts -->
+          <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 24px; margin-bottom: 32px;">
+            <div class="glass-card tilt-card" style="padding: 24px;">
+              <h3 style="font-size: 1.15rem; font-weight: 800; margin-bottom: 6px;">
+                <i class="fa-solid fa-chart-column text-primary"></i> Orders by Status
+              </h3>
+              <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 16px;">Rendered via HTML5 Canvas</p>
+              <div style="width: 100%; height: 220px; position: relative;">
+                <canvas id="status-bar-chart" width="460" height="220" style="width: 100%; height: 100%;"></canvas>
+              </div>
+            </div>
+
+            <div class="glass-card tilt-card" style="padding: 24px;">
+              <h3 style="font-size: 1.15rem; font-weight: 800; margin-bottom: 6px;">
+                <i class="fa-solid fa-chart-pie text-cyan-400"></i> Delivery Types
+              </h3>
+              <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 16px;">Gate (₹11/22) vs Room (+₹10) vs Live (₹19)</p>
+              <div style="width: 100%; height: 220px; position: relative;">
+                <canvas id="type-bar-chart" width="380" height="220" style="width: 100%; height: 100%;"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 2: DELIVERY PARTNERS -->
+        <div id="tab-content-partners" style="display: none;">
+          <div class="glass-card tilt-card" style="padding: 28px; margin-bottom: 32px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; margin-bottom: 20px;">
+              <div>
+                <h2 style="font-size: 1.3rem; font-weight: 800; margin-bottom: 4px;">
+                  <i class="fa-solid fa-users text-primary"></i> Delivery Partners
+                </h2>
+                <p style="color: var(--text-secondary); font-size: 0.88rem;">Manage runner accounts, set temporary passwords, and share portal credentials.</p>
+              </div>
+              <button class="btn-3d btn-3d-orange btn-sm" onclick="openAddPartnerModal()">
+                <i class="fa-solid fa-user-plus"></i> Add Partner
+              </button>
+            </div>
+
+            <div class="table-responsive">
+              <table class="dash-table" style="width: 100%;">
+                <thead>
+                  <tr>
+                    <th>Runner Name</th>
+                    <th>Phone</th>
+                    <th>Username</th>
+                    <th>Status</th>
+                    <th>Deliveries Done</th>
+                    <th>Rating</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="partners-table-body">
+                  <!-- Populated dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 3: ORDERS LEDGER -->
+        <div id="tab-content-orders" style="display: none;">
+          <div class="glass-card tilt-card" style="padding: 28px; margin-bottom: 32px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; margin-bottom: 20px;">
+              <div>
+                <h2 style="font-size: 1.3rem; font-weight: 800; margin-bottom: 8px;">
+                  <i class="fa-solid fa-table-list text-primary"></i> Master Order Ledger
+                </h2>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;" id="hostel-filter-tabs">
+                  <button class="btn-3d btn-3d-orange btn-sm" id="btn-hostel-all" onclick="setHostelFilter('all')">
+                    All Buildings (<span id="count-hostel-all">0</span>)
+                  </button>
+                  <button class="btn-3d btn-3d-outline btn-sm" id="btn-hostel-boys" onclick="setHostelFilter('boys')">
+                    Boys Hostels (<span id="count-hostel-boys">0</span>)
+                  </button>
+                  <button class="btn-3d btn-3d-outline btn-sm" id="btn-hostel-girls" onclick="setHostelFilter('girls')">
+                    Girls Hostels (<span id="count-hostel-girls">0</span>)
+                  </button>
+                  <button class="btn-3d btn-3d-outline btn-sm" id="btn-hostel-other" onclick="setHostelFilter('other')">
+                    Other Buildings (<span id="count-hostel-other">0</span>)
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <input type="text" id="order-search-input" class="form-input" placeholder="Search Order ID, Student, or Phone..." style="width: 260px;" oninput="renderOrdersTable()">
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="dash-table" style="width: 100%;">
+                <thead>
+                  <tr>
+                    <th>Order Ref</th>
+                    <th>Student &amp; Destination</th>
+                    <th>Tracking ID</th>
+                    <th>Parcels &amp; Tariff</th>
+                    <th>Assigned Runner</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="orders-table-body">
+                  <!-- Populated dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 4: SUPPORT MESSAGES -->
+        <div id="tab-content-messages" style="display: none;">
+          <div class="glass-card tilt-card" style="padding: 28px; margin-bottom: 32px;">
+            <h2 style="font-size: 1.3rem; font-weight: 800; margin-bottom: 16px;">
+              <i class="fa-solid fa-envelope-open-text text-primary"></i> Contact Inquiries
+            </h2>
+            <div id="messages-list-container">
+              <!-- Populated dynamically -->
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 5: SETTINGS -->
+        <div id="tab-content-settings" style="display: none;">
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px;">
+            <!-- Change Password Card -->
+            <div class="glass-card tilt-card" style="padding: 28px;">
+              <h3 style="font-size: 1.2rem; font-weight: 800; margin-bottom: 16px;">
+                <i class="fa-solid fa-key text-primary"></i> Change Owner Password
+              </h3>
+              <form onsubmit="handleSettingsPasswordChange(event)">
+                <div style="display: flex; flex-direction: column; gap: 14px;">
+                  <div class="form-group">
+                    <label class="form-label">Current Password *</label>
+                    <input type="password" id="settings-current-password" class="form-input" required>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">New Password (min 6 chars) *</label>
+                    <input type="password" id="settings-new-password" class="form-input" minlength="6" required>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Confirm New Password *</label>
+                    <input type="password" id="settings-confirm-password" class="form-input" minlength="6" required>
+                  </div>
+                  <button type="submit" class="btn-3d btn-3d-orange btn-sm" style="margin-top: 8px;">
+                    Update Owner Password
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            <!-- Danger Zone / Reset -->
+            <div class="glass-card tilt-card" style="padding: 28px; border: 1px solid rgba(239, 68, 68, 0.4);">
+              <h3 style="font-size: 1.2rem; font-weight: 800; margin-bottom: 10px; color: var(--accent-red);">
+                <i class="fa-solid fa-triangle-exclamation"></i> Storage Management
+              </h3>
+              <p style="color: var(--text-secondary); font-size: 0.88rem; margin-bottom: 18px;">
+                Clear all orders, inquiries, and local tracking sessions stored in this browser.
+              </p>
+              <button class="btn-3d btn-3d-outline btn-sm" style="color: var(--accent-red); border-color: var(--accent-red);" onclick="handleResetAllData()">
+                <i class="fa-solid fa-trash-can"></i> Reset Demo Data
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ADD PARTNER MODAL -->
+  <div id="add-partner-modal" class="partner-card-modal">
+    <div class="partner-share-box">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
+        <h3 style="font-size: 1.25rem; font-weight: 800;"><i class="fa-solid fa-user-plus text-primary"></i> Add Delivery Partner</h3>
+        <button type="button" onclick="closeAddPartnerModal()" style="background: none; border: none; color: var(--text-muted); font-size: 1.2rem; cursor: pointer;">&times;</button>
+      </div>
+
+      <form onsubmit="handleAddPartnerSubmit(event)">
+        <div style="display: flex; flex-direction: column; gap: 14px;">
+          <div class="form-group">
+            <label class="form-label">Partner Full Name *</label>
+            <input type="text" id="new-partner-name" class="form-input" placeholder="e.g. Aman Sharma" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Mobile Number *</label>
+            <input type="tel" id="new-partner-phone" class="form-input" placeholder="e.g. 9812345678" pattern="[0-9]{10}" maxlength="10" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Portal Username *</label>
+            <input type="text" id="new-partner-username" class="form-input" placeholder="e.g. rahul123" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Temporary Password *</label>
+            <input type="text" id="new-partner-temp-pass" class="form-input" placeholder="e.g. Runner#2026" minlength="6" required>
+          </div>
+
+          <div style="display: flex; gap: 10px; margin-top: 8px;">
+            <button type="button" class="btn-3d btn-3d-outline btn-sm" style="flex: 1;" onclick="closeAddPartnerModal()">Cancel</button>
+            <button type="submit" class="btn-3d btn-3d-orange btn-sm" style="flex: 1;">Save &amp; Generate Card</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- PARTNER CREDENTIAL SHARE CARD MODAL -->
+  <div id="partner-share-modal" class="partner-card-modal">
+    <div class="partner-share-box">
+      <div style="text-align: center; margin-bottom: 16px;">
+        <div style="width: 48px; height: 48px; border-radius: 50%; background: rgba(16, 185, 129, 0.15); color: var(--accent-green); display: flex; align-items: center; justify-content: center; font-size: 1.3rem; margin: 0 auto 10px;">
+          <i class="fa-solid fa-id-card"></i>
+        </div>
+        <h3 style="font-size: 1.3rem; font-weight: 800;" id="share-card-title">Partner Login Ready</h3>
+        <p style="color: var(--text-secondary); font-size: 0.85rem;">Share these credentials directly with your new delivery runner.</p>
+      </div>
+
+      <div style="background: var(--bg-input); padding: 16px; border-radius: var(--radius-sm); font-size: 0.9rem; margin-bottom: 18px; line-height: 1.6;">
+        <div><strong>Login Portal:</strong> <span style="color: var(--accent-cyan); word-break: break-all;">https://lpucart-delivery.netlify.app/runner-portal</span></div>
+        <div><strong>Username:</strong> <span id="share-card-username" style="color: var(--primary); font-weight: 700;"></span></div>
+        <div><strong>Temporary Password:</strong> <span id="share-card-password" style="color: var(--primary); font-weight: 700;"></span></div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 10px;">
+        <button type="button" class="btn-3d btn-3d-outline btn-sm" onclick="copyPartnerShareText()">
+          <i class="fa-solid fa-copy"></i> Copy Details
+        </button>
+        <a id="share-whatsapp-btn" href="#" target="_blank" class="btn-3d btn-3d-orange btn-sm" style="text-align: center;">
+          <i class="fa-brands fa-whatsapp"></i> Share on WhatsApp
+        </a>
+        <button type="button" class="btn-3d btn-3d-outline btn-sm" onclick="closePartnerShareModal()" style="margin-top: 6px;">
+          Done
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Shared Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <div>
+          <div>&copy; 2026 LPUcart Logistics. Owner Operations Portal.</div>
+          <div style="font-size:0.82rem; color:var(--text-muted); margin-top:4px;">Student project demo. Not an official LPU service.</div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="/js/main.js"></script>
+  <script src="/js/pricing.js"></script>
+  <script src="/js/storage.js"></script>
+
+  <script>
+    let currentHostelFilter = "all";
+    let activeTab = "dashboard";
+    let lastGeneratedShareData = null;
+
+    document.addEventListener("DOMContentLoaded", () => {
+      checkOwnerSession();
+    });
+
+    function checkOwnerSession() {
+      const session = window.LPU_STORAGE.getOwnerSession();
+      const loginBox = document.getElementById("login-container");
+      const dashBox = document.getElementById("dashboard-container");
+      const logoutBtn = document.getElementById("owner-logout-btn");
+
+      if (session) {
+        loginBox.style.display = "none";
+        dashBox.style.display = "block";
+        logoutBtn.style.display = "inline-flex";
+
+        if (session.mustChangePassword) {
+          document.getElementById("force-password-modal").classList.add("show");
+        } else {
+          document.getElementById("force-password-modal").classList.remove("show");
+        }
+
+        refreshOwnerData();
+      } else {
+        loginBox.style.display = "block";
+        dashBox.style.display = "none";
+        logoutBtn.style.display = "none";
+        document.getElementById("force-password-modal").classList.remove("show");
+      }
+    }
+
+    async function handleOwnerLogin(e) {
+      e.preventDefault();
+      const user = document.getElementById("owner-username").value.trim();
+      const pass = document.getElementById("owner-password").value;
+      const btn = document.getElementById("owner-login-btn");
+      btn.disabled = true;
+
+      const res = await window.LPU_STORAGE.ownerLogin(user, pass);
+      btn.disabled = false;
+
+      if (res.success) {
+        showToast("Welcome to Owner Portal!", "success");
+        checkOwnerSession();
+      } else {
+        showToast(res.error, "error");
+        const msgEl = document.getElementById("login-lockout-msg");
+        if (res.error.includes("locked")) {
+          msgEl.textContent = res.error;
+          msgEl.style.display = "block";
+        }
+      }
+    }
+
+    function handleOwnerLogout() {
+      window.LPU_STORAGE.ownerLogout();
+      showToast("Logged out of Owner Portal", "info");
+      checkOwnerSession();
+    }
+
+    async function handleForcePasswordSubmit(e) {
+      e.preventDefault();
+      const cur = document.getElementById("force-current-password").value;
+      const n1 = document.getElementById("force-new-password").value;
+      const n2 = document.getElementById("force-confirm-password").value;
+
+      if (n1 !== n2) {
+        showToast("New passwords do not match!", "error");
+        return;
+      }
+
+      const res = await window.LPU_STORAGE.ownerChangePassword(cur, n1);
+      if (res.success) {
+        showToast("Password updated successfully!", "success");
+        document.getElementById("force-password-modal").classList.remove("show");
+        checkOwnerSession();
+      } else {
+        showToast(res.error, "error");
+      }
+    }
+
+    async function handleSettingsPasswordChange(e) {
+      e.preventDefault();
+      const cur = document.getElementById("settings-current-password").value;
+      const n1 = document.getElementById("settings-new-password").value;
+      const n2 = document.getElementById("settings-confirm-password").value;
+
+      if (n1 !== n2) {
+        showToast("New passwords do not match!", "error");
+        return;
+      }
+
+      const res = await window.LPU_STORAGE.ownerChangePassword(cur, n1);
+      if (res.success) {
+        showToast("Owner password updated successfully!", "success");
+        e.target.reset();
+      } else {
+        showToast(res.error, "error");
+      }
+    }
+
+    function switchOwnerTab(tab) {
+      activeTab = tab;
+      const tabs = ["dashboard", "partners", "orders", "messages", "settings"];
+      tabs.forEach(t => {
+        const btn = document.getElementById("tab-btn-" + t);
+        const content = document.getElementById("tab-content-" + t);
+        if (btn) btn.classList.toggle("active", t === tab);
+        if (content) content.style.display = (t === tab) ? "block" : "none";
+      });
+
+      if (tab === "dashboard") {
+        const stats = window.LPU_STORAGE.getOwnerStats();
+        drawStatusBarChart(stats.statusCounts);
+        drawTypeChart(stats.typeCounts);
+      }
+    }
+
+    function refreshOwnerData() {
+      const stats = window.LPU_STORAGE.getOwnerStats();
+      const partners = window.LPU_STORAGE.getPartners();
+      const orders = window.LPU_STORAGE.getOrders();
+      const msgs = window.LPU_STORAGE.getContactMessages();
+
+      // Counts
+      document.getElementById("kpi-today-orders").textContent = stats.todayOrdersCount;
+      document.getElementById("kpi-total-revenue").textContent = `₹${stats.totalEarnings}`;
+      document.getElementById("kpi-total-orders").textContent = stats.totalOrders;
+      document.getElementById("kpi-active-partners").textContent = stats.activePartnersCount;
+
+      document.getElementById("tab-count-partners").textContent = partners.length;
+      document.getElementById("tab-count-orders").textContent = orders.length;
+      document.getElementById("tab-count-messages").textContent = msgs.length;
+
+      // Render Tables & Charts
+      renderPartnersTable();
+      renderOrdersTable();
+      renderMessagesTable();
+
+      drawStatusBarChart(stats.statusCounts);
+      drawTypeChart(stats.typeCounts);
+    }
+
+    // PARTNERS TAB LOGIC
+    function renderPartnersTable() {
+      const partners = window.LPU_STORAGE.getPartners();
+      const tbody = document.getElementById("partners-table-body");
+      if (!tbody) return;
+
+      if (partners.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding: 28px; color: var(--text-muted);">No delivery partners added yet. Click "+ Add Partner" above.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = partners.map(p => `
+        <tr>
+          <td><strong>${p.name}</strong></td>
+          <td>${p.phone}</td>
+          <td><code style="background:var(--bg-input); padding:2px 6px; border-radius:4px;">${p.username}</code></td>
+          <td>
+            <span class="status-pill ${p.status === 'Active' ? 'status-delivered' : 'status-picked'}">
+              ${p.status}
+            </span>
+          </td>
+          <td>${p.deliveriesDone || 0}</td>
+          <td>★ ${p.rating ? p.rating.toFixed(1) : '5.0'}</td>
+          <td>
+            <div style="display:flex; gap:6px; flex-wrap:wrap;">
+              ${p.status === 'Active' 
+                ? `<button class="btn-3d btn-3d-outline btn-sm" onclick="togglePartnerActive('${p.id}', 'Disabled')">Disable</button>`
+                : `<button class="btn-3d btn-3d-orange btn-sm" onclick="togglePartnerActive('${p.id}', 'Active')">Enable</button>`
+              }
+              <button class="btn-3d btn-3d-outline btn-sm" onclick="promptResetPartnerPass('${p.id}')">Reset Pass</button>
+              <button class="btn-3d btn-3d-outline btn-sm" style="color:var(--accent-red);" onclick="confirmDeletePartner('${p.id}')">Delete</button>
+            </div>
+          </td>
+        </tr>
+      `).join("");
+    }
+
+    function openAddPartnerModal() {
+      document.getElementById("add-partner-modal").classList.add("show");
+    }
+
+    function closeAddPartnerModal() {
+      document.getElementById("add-partner-modal").classList.remove("show");
+    }
+
+    async function handleAddPartnerSubmit(e) {
+      e.preventDefault();
+      const name = document.getElementById("new-partner-name").value.trim();
+      const phone = document.getElementById("new-partner-phone").value.trim();
+      const user = document.getElementById("new-partner-username").value.trim();
+      const tempPass = document.getElementById("new-partner-temp-pass").value.trim();
+
+      const res = await window.LPU_STORAGE.addPartner({ name, phone, username: user, password: tempPass });
+      if (res.success) {
+        closeAddPartnerModal();
+        e.target.reset();
+        showPartnerShareModal(name, phone, user, tempPass);
+        refreshOwnerData();
+      } else {
+        showToast(res.error, "error");
+      }
+    }
+
+    function showPartnerShareModal(name, phone, username, tempPassword) {
+      lastGeneratedShareData = { name, phone, username, tempPassword };
+      document.getElementById("share-card-title").textContent = `Partner: ${name}`;
+      document.getElementById("share-card-username").textContent = username;
+      document.getElementById("share-card-password").textContent = tempPassword;
+
+      const portalUrl = "https://lpucart-delivery.netlify.app/runner-portal";
+      const shareMsg = `Hello ${name}! Your LPUcart Delivery Partner account is ready.\n\n` +
+        `Portal URL: ${portalUrl}\n` +
+        `Username: ${username}\n` +
+        `Temporary Password: ${tempPassword}\n\n` +
+        `Please log in and set your new password on first login.`;
+
+      const cleanPhone = phone.replace(/[^0-9]/g, "");
+      const waLink = document.getElementById("share-whatsapp-btn");
+      waLink.href = `https://wa.me/91${cleanPhone}?text=${encodeURIComponent(shareMsg)}`;
+
+      document.getElementById("partner-share-modal").classList.add("show");
+    }
+
+    function closePartnerShareModal() {
+      document.getElementById("partner-share-modal").classList.remove("show");
+    }
+
+    function copyPartnerShareText() {
+      if (!lastGeneratedShareData) return;
+      const { name, username, tempPassword } = lastGeneratedShareData;
+      const portalUrl = "https://lpucart-delivery.netlify.app/runner-portal";
+      const text = `LPUcart Delivery Partner Login\nPortal: ${portalUrl}\nUsername: ${username}\nPassword: ${tempPassword}`;
+      navigator.clipboard.writeText(text).then(() => {
+        showToast("Login details copied to clipboard!", "success");
+      });
+    }
+
+    function togglePartnerActive(partnerId, status) {
+      window.LPU_STORAGE.updatePartnerStatus(partnerId, status);
+      showToast(`Partner status updated to ${status}`, "info");
+      renderPartnersTable();
+    }
+
+    async function promptResetPartnerPass(partnerId) {
+      const newPass = prompt("Enter new temporary password for partner (min 6 characters):", "Runner@" + Math.floor(1000 + Math.random() * 9000));
+      if (!newPass) return;
+      if (newPass.length < 6) {
+        showToast("Password must be at least 6 characters long", "error");
+        return;
+      }
+      const res = await window.LPU_STORAGE.resetPartnerPassword(partnerId, newPass);
+      if (res.success) {
+        showPartnerShareModal(res.partner.name, res.partner.phone, res.partner.username, newPass);
+        renderPartnersTable();
+      } else {
+        showToast(res.error, "error");
+      }
+    }
+
+    function confirmDeletePartner(partnerId) {
+      if (confirm("Are you sure you want to delete this partner account?")) {
+        window.LPU_STORAGE.deletePartner(partnerId);
+        showToast("Partner deleted", "info");
+        renderPartnersTable();
+      }
+    }
+
+    // ORDERS TAB LOGIC
+    function setHostelFilter(filter) {
+      currentHostelFilter = filter;
+      ["all", "boys", "girls", "other"].forEach(f => {
+        const btn = document.getElementById("btn-hostel-" + f);
+        if (btn) btn.className = (f === filter) ? "btn-3d btn-3d-orange btn-sm" : "btn-3d btn-3d-outline btn-sm";
+      });
+      renderOrdersTable();
+    }
+
+    function renderOrdersTable() {
+      const orders = window.LPU_STORAGE.getOrders();
+      const partners = window.LPU_STORAGE.getPartners();
+      const q = (document.getElementById("order-search-input").value || "").trim().toLowerCase();
+
+      let boysCount = 0;
+      let girlsCount = 0;
+      let otherCount = 0;
+
+      orders.forEach(o => {
+        const cat = window.getHostelCategory(o.hostelBlock);
+        if (cat === "boys") boysCount++;
+        else if (cat === "girls") girlsCount++;
+        else otherCount++;
+      });
+
+      document.getElementById("count-hostel-all").textContent = orders.length;
+      document.getElementById("count-hostel-boys").textContent = boysCount;
+      document.getElementById("count-hostel-girls").textContent = girlsCount;
+      document.getElementById("count-hostel-other").textContent = otherCount;
+
+      let filtered = orders;
+      if (currentHostelFilter !== "all") {
+        filtered = filtered.filter(o => window.getHostelCategory(o.hostelBlock) === currentHostelFilter);
+      }
+
+      if (q) {
+        filtered = filtered.filter(o => 
+          (o.id && o.id.toLowerCase().includes(q)) ||
+          (o.name && o.name.toLowerCase().includes(q)) ||
+          (o.phone && o.phone.toLowerCase().includes(q)) ||
+          (o.trackingId && o.trackingId.toLowerCase().includes(q))
+        );
+      }
+
+      const tbody = document.getElementById("orders-table-body");
+      if (!tbody) return;
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding: 28px; color: var(--text-muted);">No orders found matching filter.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(o => {
+        const partnerOptions = partners.map(p => 
+          `<option value="${p.id}" ${o.partnerId === p.id ? 'selected' : ''}>${p.name} (${p.status})</option>`
+        ).join("");
+
+        return `
+          <tr>
+            <td>
+              <strong style="color:var(--primary);">${o.id}</strong>
+              <div style="font-size:0.75rem; color:var(--text-muted);">OTP: <strong style="color:var(--accent-yellow);">${o.otp}</strong></div>
+            </td>
+            <td>
+              <div style="font-weight:700;">${o.name}</div>
+              <div style="font-size:0.82rem; color:var(--text-secondary);">${o.hostelBlock} • Rm ${o.roomNo}</div>
+              <div style="font-size:0.8rem; color:var(--text-muted);">Phone: ${o.phone}</div>
+            </td>
+            <td>
+              <code>${o.trackingId}</code>
+            </td>
+            <td>
+              <div>${o.parcels} parcel(s) • ${o.deliveryType}</div>
+              <div style="font-weight:700; color:var(--accent-green);">₹${o.priceBreakdown ? o.priceBreakdown.total : 11} (${o.paymentStatus})</div>
+            </td>
+            <td>
+              <div style="display:flex; align-items:center; gap:6px;">
+                <select id="assign-select-${o.id}" class="form-select" style="padding:4px 8px; font-size:0.82rem; width:130px;">
+                  <option value="">-- Choose Runner --</option>
+                  ${partnerOptions}
+                </select>
+                <button class="btn-3d btn-3d-outline btn-sm" onclick="handleAssignPartner('${o.id}')" title="Assign Runner">Assign</button>
+              </div>
+              <div style="font-size:0.78rem; color:var(--text-secondary); margin-top:4px;">
+                Assigned: <strong>${o.partnerName || 'Unassigned'}</strong>
+              </div>
+            </td>
+            <td>
+              <span class="status-pill status-${(o.status || 'placed').toLowerCase().replace(/\s+/g, '')}">
+                ${o.status}
+              </span>
+              ${o.status === 'Delivered' 
+                ? `<div style="font-size:0.75rem; color:var(--accent-yellow); margin-top:4px;">Waiting for owner confirmation</div>`
+                : ''}
+            </td>
+            <td>
+              ${o.status === 'Delivered'
+                ? `<button class="btn-3d btn-3d-orange btn-sm" onclick="handleConfirmDelivery('${o.id}')"><i class="fa-solid fa-check-double"></i> Confirm Delivery</button>`
+                : (o.status === 'Confirmed' 
+                    ? `<span style="color:var(--accent-green); font-size:0.85rem; font-weight:700;"><i class="fa-solid fa-circle-check"></i> Confirmed</span>`
+                    : `<span style="color:var(--text-muted); font-size:0.82rem;">In Progress</span>`
+                  )
+              }
+            </td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function handleAssignPartner(orderId) {
+      const select = document.getElementById(`assign-select-${orderId}`);
+      if (!select || !select.value) {
+        showToast("Please choose a delivery partner from dropdown", "error");
+        return;
+      }
+      const res = window.LPU_STORAGE.assignOrder(orderId, select.value);
+      if (res.success) {
+        showToast(`Order assigned to ${res.order.partnerName}`, "success");
+        renderOrdersTable();
+      } else {
+        showToast(res.error, "error");
+      }
+    }
+
+    function handleConfirmDelivery(orderId) {
+      const res = window.LPU_STORAGE.confirmDelivery(orderId);
+      if (res.success) {
+        showToast(`Delivery for order ${orderId} confirmed!`, "success");
+        refreshOwnerData();
+      } else {
+        showToast(res.error, "error");
+      }
+    }
+
+    // MESSAGES TAB LOGIC
+    function renderMessagesTable() {
+      const msgs = window.LPU_STORAGE.getContactMessages();
+      const container = document.getElementById("messages-list-container");
+      if (!container) return;
+
+      if (msgs.length === 0) {
+        container.innerHTML = `<div style="text-align:center; padding: 28px; color: var(--text-muted);">No student support inquiries received yet.</div>`;
+        return;
+      }
+
+      container.innerHTML = `
+        <div class="table-responsive">
+          <table class="dash-table" style="width: 100%;">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Student Name</th>
+                <th>Phone</th>
+                <th>Hostel / Building</th>
+                <th>Message</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${msgs.map(m => `
+                <tr>
+                  <td style="font-size:0.8rem; color:var(--text-muted);">${new Date(m.createdAt).toLocaleDateString()}</td>
+                  <td><strong>${m.name}</strong></td>
+                  <td>${m.phone}</td>
+                  <td>${m.hostel}</td>
+                  <td style="max-width: 320px; font-size:0.88rem;">${m.message}</td>
+                  <td>
+                    <button class="btn-3d btn-3d-outline btn-sm" style="color:var(--accent-red);" onclick="handleDeleteMessage('${m.id}')">Delete</button>
+                  </td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    function handleDeleteMessage(msgId) {
+      window.LPU_STORAGE.deleteContactMessage(msgId);
+      showToast("Message deleted", "info");
+      renderMessagesTable();
+    }
+
+    function handleResetAllData() {
+      if (confirm("Reset demo data? This will clear all orders and inquiries in this browser.")) {
+        window.LPU_STORAGE.resetAllData();
+        showToast("Demo data cleared", "success");
+        refreshOwnerData();
+      }
+    }
+
+    // CANVAS CHARTS LOGIC
+    function drawStatusBarChart(statusCounts) {
+      const canvas = document.getElementById("status-bar-chart");
+      if (!canvas) return;
+      const ctx = canvas.getContext("2d");
+      const width = canvas.width;
+      const height = canvas.height;
+      ctx.clearRect(0, 0, width, height);
+
+      const isDark = document.documentElement.getAttribute("data-theme") !== "light";
+      const textColor = isDark ? "#ffffff" : "#0f172a";
+      const labelColor = isDark ? "#94a3b8" : "#475569";
+      const gridColor = isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)";
+
+      const labels = ["Placed", "Assigned", "Picked", "On Way", "Delivered", "Confirmed"];
+      const keys = ["Placed", "Assigned", "Picked", "On the way", "Delivered", "Confirmed"];
+      const colors = ["#ff6b00", "#6366f1", "#f59e0b", "#06b6d4", "#ec4899", "#10b981"];
+      const values = keys.map(k => (statusCounts && statusCounts[k]) || 0);
+
+      const maxVal = Math.max(1, ...values) * 1.3;
+      const barWidth = 36;
+      const spacing = (width - 40) / labels.length;
+
+      // Draw Grid
+      ctx.strokeStyle = gridColor;
+      ctx.lineWidth = 1;
+      for (let y = 30; y < height - 35; y += 35) {
+        ctx.beginPath();
+        ctx.moveTo(30, y);
+        ctx.lineTo(width - 20, y);
+        ctx.stroke();
+      }
+
+      labels.forEach((label, idx) => {
+        const val = values[idx];
+        const barHeight = (val / maxVal) * (height - 70);
+        const x = 35 + idx * spacing;
+        const y = height - 35 - barHeight;
+
+        ctx.fillStyle = colors[idx];
+        ctx.beginPath();
+        if (ctx.roundRect) ctx.roundRect(x, y, barWidth, barHeight, [4, 4, 0, 0]);
+        else ctx.rect(x, y, barWidth, barHeight);
+        ctx.fill();
+
+        ctx.fillStyle = textColor;
+        ctx.font = "bold 12px sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText(val.toString(), x + barWidth / 2, y - 6);
+
+        ctx.fillStyle = labelColor;
+        ctx.font = "10px sans-serif";
+        ctx.fillText(label, x + barWidth / 2, height - 14);
+      });
+    }
+
+    function drawTypeChart(typeCounts) {
+      const canvas = document.getElementById("type-bar-chart");
+      if (!canvas) return;
+      const ctx = canvas.getContext("2d");
+      const width = canvas.width;
+      const height = canvas.height;
+      ctx.clearRect(0, 0, width, height);
+
+      const isDark = document.documentElement.getAttribute("data-theme") !== "light";
+      const textColor = isDark ? "#ffffff" : "#0f172a";
+      const labelColor = isDark ? "#94a3b8" : "#475569";
+
+      const types = [
+        { key: "gate", label: "Gate (₹11/22)", color: "#ff6b00" },
+        { key: "room", label: "Room (+₹10)", color: "#2563eb" },
+        { key: "live", label: "Live Pin (₹19)", color: "#06b6d4" }
+      ];
+
+      const values = types.map(t => (typeCounts && typeCounts[t.key]) || 0);
+      const maxVal = Math.max(1, ...values) * 1.3;
+      const barWidth = 54;
+      const spacing = (width - 40) / types.length;
+
+      types.forEach((type, idx) => {
+        const val = values[idx];
+        const barHeight = (val / maxVal) * (height - 70);
+        const x = 35 + idx * spacing;
+        const y = height - 35 - barHeight;
+
+        ctx.fillStyle = type.color;
+        ctx.beginPath();
+        if (ctx.roundRect) ctx.roundRect(x, y, barWidth, barHeight, [4, 4, 0, 0]);
+        else ctx.rect(x, y, barWidth, barHeight);
+        ctx.fill();
+
+        ctx.fillStyle = textColor;
+        ctx.font = "bold 12px sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText(val.toString(), x + barWidth / 2, y - 6);
+
+        ctx.fillStyle = labelColor;
+        ctx.font = "11px sans-serif";
+        ctx.fillText(type.label, x + barWidth / 2, height - 14);
+      });
+    }
+  </script>
+</body>
+</html>

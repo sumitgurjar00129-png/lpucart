@@ -58,7 +58,7 @@ const WEEKLY_PASS_CONFIG = {
   deliveriesAllowed: 10,
   validityDays: 7,
   badge: "Best Value for Regular Shoppers",
-  description: "Get 10 deliveries anywhere on campus within 7 days for just ₹99 (Save up to ₹120+)"
+  description: "10 deliveries for Rs 99"
 };
 
 /**

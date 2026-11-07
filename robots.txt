@@ -1,5 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://lpucart.netlify.app/sitemap.xml
-
+Sitemap: https://lpucart-delivery.netlify.app/sitemap.xml

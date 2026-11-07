@@ -1,73 +1,462 @@
 /**
- * LPUcart - Robust Data Storage & Business Logic (localStorage)
- * =============================================================
- * Safe, glitch-free storage manager with defensive error handling,
- * OTP verification, demo data seeding, and admin analytics.
+ * LPUcart - Storage & Data Access Layer
+ * =====================================
+ * Single unified storage module for:
+ * - Orders ledger & status workflows
+ * - Owner authentication (SHA-256 via Web Crypto API, session timeout, lockout)
+ * - Delivery partner management & authentication
+ * - Contact inquiries (stored locally)
+ * - Student device privacy (device-specific order history & 4-digit phone verification for tracking)
+ * 
+ * Cleanly abstracted so it can be swapped with Firebase / Supabase later without modifying pages.
  */
 
+// Master Storage Keys
 const STORAGE_KEYS = {
   ORDERS: "lpucart_orders",
+  MY_ORDERS: "lpucart_my_orders",
+  PARTNERS: "lpucart_partners",
+  MESSAGES: "lpucart_contact_messages",
+  OWNER_AUTH: "lpucart_owner_auth",
+  OWNER_LOCKOUT: "lpucart_owner_lockout",
+  PARTNER_LOCKOUT: "lpucart_partner_lockout",
   WEEKLY_PASS: "lpucart_weekly_pass",
-  THEME: "lpucart_theme",
-  DELIVERY_USER: "lpucart_delivery_user",
-  ADMIN_USER: "lpucart_admin_user",
-  CONTACT_MESSAGES: "lpucart_contact_messages",
-  HAS_ORDERED: "lpucart_has_ordered"
+  THEME: "lpucart_theme"
 };
 
-// Defensive Storage Wrapper: Never crashes on private mode or quota errors
+const SESSION_KEYS = {
+  OWNER_SESSION: "lpucart_owner_session",
+  PARTNER_SESSION: "lpucart_partner_session"
+};
+
+// Safe JSON LocalStorage Wrapper
 const SafeStore = {
-  get: function(key, defaultValue = null) {
+  get(key, defaultValue = null) {
     try {
-      const raw = localStorage.getItem(key);
-      if (raw === null || raw === undefined || raw === "") return defaultValue;
-      return JSON.parse(raw);
-    } catch (err) {
-      console.warn(`SafeStore.get failed for [${key}]:`, err);
+      const val = localStorage.getItem(key);
+      if (val === null || val === undefined) return defaultValue;
+      return JSON.parse(val);
+    } catch (e) {
+      console.warn(`[SafeStore] Error reading key "${key}":`, e);
       return defaultValue;
     }
   },
-  set: function(key, value) {
+  set(key, value) {
     try {
       localStorage.setItem(key, JSON.stringify(value));
       return true;
-    } catch (err) {
-      console.warn(`SafeStore.set failed for [${key}]:`, err);
+    } catch (e) {
+      console.error(`[SafeStore] Error writing key "${key}":`, e);
       return false;
     }
   },
-  remove: function(key) {
+  remove(key) {
     try {
       localStorage.removeItem(key);
       return true;
-    } catch (err) {
-      console.warn(`SafeStore.remove failed for [${key}]:`, err);
+    } catch (e) {
+      console.error(`[SafeStore] Error removing key "${key}":`, e);
       return false;
     }
   }
 };
 
-// Demo Delivery Partner Profile & Credentials
-const DEMO_DELIVERY_CREDS = {
-  username: "deliveryboy",
-  password: "lpu123",
-  profile: {
-    id: "DB-01",
-    name: "Rahul Kumar",
-    phone: "9876543210",
-    vehicle: "Hero E-Scooter (PB-08-LP-1024)",
-    rating: 4.9,
-    completedDeliveries: 342,
-    avatar: "/assets/delivery-avatar.svg"
+// Safe SessionStorage Wrapper
+const SafeSession = {
+  get(key, defaultValue = null) {
+    try {
+      const val = sessionStorage.getItem(key);
+      if (val === null || val === undefined) return defaultValue;
+      return JSON.parse(val);
+    } catch (e) {
+      return defaultValue;
+    }
+  },
+  set(key, value) {
+    try {
+      sessionStorage.setItem(key, JSON.stringify(value));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  },
+  remove(key) {
+    try {
+      sessionStorage.removeItem(key);
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 };
 
-// Demo Admin Credentials
-const DEMO_ADMIN_CREDS = {
-  username: "admin",
-  password: "admin123",
-  role: "Campus Logistics Manager"
-};
+/**
+ * Compute SHA-256 hex digest using Web Crypto API
+ * Never stores or handles plain text passwords in master state.
+ */
+async function sha256(text) {
+  if (typeof crypto !== "undefined" && crypto.subtle) {
+    const buffer = new TextEncoder().encode(text);
+    const hashBuffer = await crypto.subtle.digest("SHA-256", buffer);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+  }
+  // Fallback simple hash if Web Crypto unavailable in tests
+  let hash = 0;
+  for (let i = 0; i < text.length; i++) {
+    const chr = text.charCodeAt(i);
+    hash = ((hash << 5) - hash) + chr;
+    hash |= 0;
+  }
+  return "fallback_" + Math.abs(hash).toString(16);
+}
+
+// ========================================================
+// 1. OWNER AUTHENTICATION & MANAGEMENT
+// ========================================================
+
+// Initial temporary owner password hash for "LPUcart#Owner2026"
+const DEFAULT_OWNER_HASH = "0525ebddbaaf66fd586c06c1905dcd2b7d20605130c229207d8143bf0a141c4b";
+
+function initOwnerAuthIfMissing() {
+  const existing = SafeStore.get(STORAGE_KEYS.OWNER_AUTH, null);
+  if (!existing) {
+    SafeStore.set(STORAGE_KEYS.OWNER_AUTH, {
+      username: "owner",
+      passwordHash: DEFAULT_OWNER_HASH,
+      mustChangePassword: true,
+      updatedAt: new Date().toISOString()
+    });
+  }
+}
+initOwnerAuthIfMissing();
+
+const LOCKOUT_THRESHOLD = 5;
+const LOCKOUT_DURATION_MS = 5 * 60 * 1000; // 5 minutes
+const SESSION_TIMEOUT_MS = 30 * 60 * 1000;  // 30 minutes
+
+function checkOwnerLockout() {
+  const lockout = SafeStore.get(STORAGE_KEYS.OWNER_LOCKOUT, { attempts: 0, lockedUntil: 0 });
+  const now = Date.now();
+  if (lockout.lockedUntil && now < lockout.lockedUntil) {
+    const remainingSec = Math.ceil((lockout.lockedUntil - now) / 1000);
+    const remainingMin = Math.ceil(remainingSec / 60);
+    return { locked: true, message: `Account locked due to 5 failed attempts. Please wait ${remainingMin} minute(s).` };
+  }
+  return { locked: false };
+}
+
+function recordOwnerFailedAttempt() {
+  const lockout = SafeStore.get(STORAGE_KEYS.OWNER_LOCKOUT, { attempts: 0, lockedUntil: 0 });
+  lockout.attempts = (lockout.attempts || 0) + 1;
+  if (lockout.attempts >= LOCKOUT_THRESHOLD) {
+    lockout.lockedUntil = Date.now() + LOCKOUT_DURATION_MS;
+    lockout.attempts = 0;
+  }
+  SafeStore.set(STORAGE_KEYS.OWNER_LOCKOUT, lockout);
+}
+
+function clearOwnerLockout() {
+  SafeStore.remove(STORAGE_KEYS.OWNER_LOCKOUT);
+}
+
+async function ownerLogin(username, password) {
+  const lockoutCheck = checkOwnerLockout();
+  if (lockoutCheck.locked) {
+    return { success: false, error: lockoutCheck.message };
+  }
+
+  const auth = SafeStore.get(STORAGE_KEYS.OWNER_AUTH, null);
+  if (!auth) {
+    return { success: false, error: "Authentication system not initialized." };
+  }
+
+  const cleanUser = (username || "").trim();
+  const allowedUsers = [auth.username.toLowerCase(), "owner", "admin"];
+  if (!allowedUsers.includes(cleanUser.toLowerCase())) {
+    recordOwnerFailedAttempt();
+    return { success: false, error: "Invalid username or password." };
+  }
+
+  const inputHash = await sha256(password);
+  if (inputHash !== auth.passwordHash) {
+    recordOwnerFailedAttempt();
+    return { success: false, error: "Invalid username or password." };
+  }
+
+  // Login successful
+  clearOwnerLockout();
+  const session = {
+    username: auth.username,
+    role: "owner",
+    mustChangePassword: !!auth.mustChangePassword,
+    loginTime: Date.now(),
+    lastActive: Date.now()
+  };
+  SafeSession.set(SESSION_KEYS.OWNER_SESSION, session);
+
+  return {
+    success: true,
+    mustChangePassword: !!auth.mustChangePassword,
+    session
+  };
+}
+
+function getOwnerSession() {
+  const session = SafeSession.get(SESSION_KEYS.OWNER_SESSION, null);
+  if (!session) return null;
+
+  const now = Date.now();
+  if (now - session.lastActive > SESSION_TIMEOUT_MS) {
+    SafeSession.remove(SESSION_KEYS.OWNER_SESSION);
+    return null; // Expired
+  }
+
+  // Update activity timestamp
+  session.lastActive = now;
+  SafeSession.set(SESSION_KEYS.OWNER_SESSION, session);
+  return session;
+}
+
+function ownerLogout() {
+  SafeSession.remove(SESSION_KEYS.OWNER_SESSION);
+}
+
+async function ownerChangePassword(currentPassword, newPassword) {
+  const auth = SafeStore.get(STORAGE_KEYS.OWNER_AUTH, null);
+  if (!auth) return { success: false, error: "Owner account not found." };
+
+  const currentHash = await sha256(currentPassword);
+  if (currentHash !== auth.passwordHash) {
+    return { success: false, error: "Current password does not match." };
+  }
+
+  if (!newPassword || newPassword.length < 6) {
+    return { success: false, error: "New password must be at least 6 characters long." };
+  }
+
+  const newHash = await sha256(newPassword);
+  auth.passwordHash = newHash;
+  auth.mustChangePassword = false;
+  auth.updatedAt = new Date().toISOString();
+  SafeStore.set(STORAGE_KEYS.OWNER_AUTH, auth);
+
+  // Update session
+  const session = getOwnerSession();
+  if (session) {
+    session.mustChangePassword = false;
+    SafeSession.set(SESSION_KEYS.OWNER_SESSION, session);
+  }
+
+  return { success: true, message: "Password updated successfully!" };
+}
+
+// ========================================================
+// 2. DELIVERY PARTNERS MANAGEMENT & AUTHENTICATION
+// ========================================================
+
+function getPartners() {
+  const partners = SafeStore.get(STORAGE_KEYS.PARTNERS, []);
+  return Array.isArray(partners) ? partners : [];
+}
+
+async function addPartner({ name, phone, username, password }) {
+  const partners = getPartners();
+  const cleanUser = (username || phone || "").trim().toLowerCase();
+
+  if (partners.some(p => p.username.toLowerCase() === cleanUser)) {
+    return { success: false, error: "Username already exists. Please choose a different one." };
+  }
+
+  const id = "PARTNER-" + Math.floor(1000 + Math.random() * 9000);
+  const passwordHash = await sha256(password);
+
+  const newPartner = {
+    id,
+    name: name.trim(),
+    phone: phone.trim(),
+    username: cleanUser,
+    passwordHash,
+    status: "Active", // "Active" | "Disabled"
+    mustChangePassword: true,
+    deliveriesDone: 0,
+    totalEarnings: 0,
+    rating: 5.0,
+    createdAt: new Date().toISOString()
+  };
+
+  partners.push(newPartner);
+  SafeStore.set(STORAGE_KEYS.PARTNERS, partners);
+
+  return {
+    success: true,
+    partner: newPartner,
+    tempPassword: password
+  };
+}
+
+function updatePartnerStatus(partnerId, newStatus) {
+  const partners = getPartners();
+  const partner = partners.find(p => p.id === partnerId);
+  if (!partner) return false;
+
+  if (typeof newStatus === "boolean") {
+    partner.status = newStatus ? "Active" : "Disabled";
+  } else {
+    partner.status = newStatus; // "Active" or "Disabled"
+  }
+  SafeStore.set(STORAGE_KEYS.PARTNERS, partners);
+  return true;
+}
+
+async function resetPartnerPassword(partnerId, newTempPassword) {
+  const partners = getPartners();
+  const partner = partners.find(p => p.id === partnerId);
+  if (!partner) return { success: false, error: "Partner not found." };
+
+  partner.passwordHash = await sha256(newTempPassword);
+  partner.mustChangePassword = true;
+  SafeStore.set(STORAGE_KEYS.PARTNERS, partners);
+
+  return { success: true, partner, tempPassword: newTempPassword };
+}
+
+function deletePartner(partnerId) {
+  let partners = getPartners();
+  partners = partners.filter(p => p.id !== partnerId);
+  SafeStore.set(STORAGE_KEYS.PARTNERS, partners);
+  return true;
+}
+
+function checkPartnerLockout(username) {
+  const key = (username || "").trim().toLowerCase();
+  const allLockouts = SafeStore.get(STORAGE_KEYS.PARTNER_LOCKOUT, {});
+  const lockout = allLockouts[key] || { attempts: 0, lockedUntil: 0 };
+  const now = Date.now();
+
+  if (lockout.lockedUntil && now < lockout.lockedUntil) {
+    const remainingMin = Math.ceil((lockout.lockedUntil - now) / 60000);
+    return { locked: true, message: `Account locked due to 5 failed attempts. Please wait ${remainingMin} minute(s).` };
+  }
+  return { locked: false };
+}
+
+function recordPartnerFailedAttempt(username) {
+  const key = (username || "").trim().toLowerCase();
+  const allLockouts = SafeStore.get(STORAGE_KEYS.PARTNER_LOCKOUT, {});
+  const lockout = allLockouts[key] || { attempts: 0, lockedUntil: 0 };
+
+  lockout.attempts = (lockout.attempts || 0) + 1;
+  if (lockout.attempts >= LOCKOUT_THRESHOLD) {
+    lockout.lockedUntil = Date.now() + LOCKOUT_DURATION_MS;
+    lockout.attempts = 0;
+  }
+  allLockouts[key] = lockout;
+  SafeStore.set(STORAGE_KEYS.PARTNER_LOCKOUT, allLockouts);
+}
+
+function clearPartnerLockout(username) {
+  const key = (username || "").trim().toLowerCase();
+  const allLockouts = SafeStore.get(STORAGE_KEYS.PARTNER_LOCKOUT, {});
+  delete allLockouts[key];
+  SafeStore.set(STORAGE_KEYS.PARTNER_LOCKOUT, allLockouts);
+}
+
+async function partnerLogin(username, password) {
+  const cleanUser = (username || "").trim().toLowerCase();
+  const lockoutCheck = checkPartnerLockout(cleanUser);
+  if (lockoutCheck.locked) {
+    return { success: false, error: lockoutCheck.message };
+  }
+
+  const partners = getPartners();
+  const partner = partners.find(p => p.username.toLowerCase() === cleanUser);
+
+  if (!partner) {
+    recordPartnerFailedAttempt(cleanUser);
+    return { success: false, error: "Invalid username or password." };
+  }
+
+  if (partner.status === "Disabled") {
+    return { success: false, error: "Your delivery partner account has been disabled. Please contact the owner." };
+  }
+
+  const inputHash = await sha256(password);
+  if (inputHash !== partner.passwordHash) {
+    recordPartnerFailedAttempt(cleanUser);
+    return { success: false, error: "Invalid username or password." };
+  }
+
+  clearPartnerLockout(cleanUser);
+  const session = {
+    partnerId: partner.id,
+    name: partner.name,
+    username: partner.username,
+    role: "partner",
+    mustChangePassword: !!partner.mustChangePassword,
+    loginTime: Date.now(),
+    lastActive: Date.now()
+  };
+  SafeSession.set(SESSION_KEYS.PARTNER_SESSION, session);
+
+  return {
+    success: true,
+    mustChangePassword: !!partner.mustChangePassword,
+    partner,
+    session
+  };
+}
+
+function getPartnerSession() {
+  const session = SafeSession.get(SESSION_KEYS.PARTNER_SESSION, null);
+  if (!session) return null;
+
+  const now = Date.now();
+  if (now - session.lastActive > SESSION_TIMEOUT_MS) {
+    SafeSession.remove(SESSION_KEYS.PARTNER_SESSION);
+    return null;
+  }
+
+  session.lastActive = now;
+  SafeSession.set(SESSION_KEYS.PARTNER_SESSION, session);
+  return session;
+}
+
+function partnerLogout() {
+  SafeSession.remove(SESSION_KEYS.PARTNER_SESSION);
+}
+
+async function partnerChangePassword(partnerId, currentPassword, newPassword) {
+  const partners = getPartners();
+  const partner = partners.find(p => p.id === partnerId);
+  if (!partner) return { success: false, error: "Partner account not found." };
+
+  const currentHash = await sha256(currentPassword);
+  if (currentHash !== partner.passwordHash) {
+    return { success: false, error: "Current password does not match." };
+  }
+
+  if (!newPassword || newPassword.length < 6) {
+    return { success: false, error: "New password must be at least 6 characters long." };
+  }
+
+  partner.passwordHash = await sha256(newPassword);
+  partner.mustChangePassword = false;
+  SafeStore.set(STORAGE_KEYS.PARTNERS, partners);
+
+  // Update session
+  const session = getPartnerSession();
+  if (session) {
+    session.mustChangePassword = false;
+    SafeSession.set(SESSION_KEYS.PARTNER_SESSION, session);
+  }
+
+  return { success: true, message: "Password updated successfully!" };
+}
+
+// ========================================================
+// 3. ORDERS MANAGEMENT & LIFECYCLE
+// ========================================================
 
 /**
  * Generate a random 4-digit OTP for secure parcel handover.
@@ -77,7 +466,7 @@ function generateOTP() {
 }
 
 /**
- * Generate a clean Order Reference ID (e.g., LPU-4921)
+ * Generate an Order Reference ID (e.g. LPU-4921)
  */
 function generateOrderId() {
   const num = Math.floor(1000 + Math.random() * 9000);
@@ -85,182 +474,7 @@ function generateOrderId() {
 }
 
 /**
- * Seed realistic initial demo data if localStorage is empty.
- * Uses the official HOSTELS list ("Boys Hostel 3", "Girls Hostel 11", etc.).
- */
-function seedDemoDataIfEmpty() {
-  const existingOrders = SafeStore.get(STORAGE_KEYS.ORDERS, null);
-  
-  // Seed only if no orders exist yet
-  if (!existingOrders || !Array.isArray(existingOrders) || existingOrders.length === 0) {
-    const demoOrders = [
-      {
-        id: "LPU-8842",
-        otp: "5821",
-        name: "Aman Verma",
-        phone: "9876512340",
-        hostelBlock: "Boys Hostel 3",
-        roomNo: "412-B",
-        trackingId: "AMZ-IN-8890214",
-        parcels: 2,
-        deliveryType: "room",
-        timeSlot: "04:00 PM - 06:00 PM (Evening Slot 1)",
-        photoUrl: "",
-        paymentMethod: "UPI",
-        paymentStatus: "Paid",
-        coupon: "FIRST5",
-        priceBreakdown: {
-          basePrice: 22,
-          roomExtra: 10,
-          subtotal: 32,
-          discount: 5,
-          total: 27,
-          calculationNote: "2 Parcels to hostel gate: ₹22 + Room delivery extra: ₹10 - Coupon ₹5"
-        },
-        liveLocation: null,
-        status: "On the way",
-        statusHistory: [
-          { status: "Placed", time: "03:15 PM, Today", note: "Order placed by student" },
-          { status: "Picked", time: "03:45 PM, Today", note: "Parcel picked from Uni Mall by Rahul Kumar" },
-          { status: "On the way", time: "04:10 PM, Today", note: "Out for delivery near Boys Hostel 3 gate" }
-        ],
-        deliveryBoy: DEMO_DELIVERY_CREDS.profile,
-        rating: 0,
-        feedback: "",
-        createdAt: new Date(Date.now() - 45 * 60 * 1000).toISOString()
-      },
-      {
-        id: "LPU-8710",
-        otp: "3490",
-        name: "Pooja Sharma",
-        phone: "9812345678",
-        hostelBlock: "Girls Hostel 11",
-        roomNo: "N/A (Live Location)",
-        trackingId: "FK-77123901",
-        parcels: 1,
-        deliveryType: "live",
-        timeSlot: "12:00 PM - 02:00 PM (Afternoon Slot)",
-        photoUrl: "",
-        paymentMethod: "COD",
-        paymentStatus: "Pay on Delivery",
-        coupon: "",
-        priceBreakdown: {
-          basePrice: 19,
-          roomExtra: 0,
-          subtotal: 19,
-          discount: 0,
-          total: 19,
-          calculationNote: "Live Location delivery (outside hostel): ₹19"
-        },
-        liveLocation: {
-          latitude: 31.2536,
-          longitude: 75.7032,
-          mapsUrl: "https://www.google.com/maps?q=31.2536,75.7032"
-        },
-        status: "Picked",
-        statusHistory: [
-          { status: "Placed", time: "01:20 PM, Today", note: "Order placed by student" },
-          { status: "Picked", time: "01:50 PM, Today", note: "Picked up from Uni Mall Desk #3" }
-        ],
-        deliveryBoy: DEMO_DELIVERY_CREDS.profile,
-        rating: 0,
-        feedback: "",
-        createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()
-      },
-      {
-        id: "LPU-7650",
-        otp: "8914",
-        name: "Rohan Kapoor",
-        phone: "9789012345",
-        hostelBlock: "Boys Hostel 1",
-        roomNo: "201",
-        trackingId: "MYN-998122",
-        parcels: 1,
-        deliveryType: "gate",
-        timeSlot: "10:00 AM - 12:00 PM (Morning Slot)",
-        photoUrl: "",
-        paymentMethod: "UPI",
-        paymentStatus: "Paid",
-        coupon: "",
-        priceBreakdown: {
-          basePrice: 11,
-          roomExtra: 0,
-          subtotal: 11,
-          discount: 0,
-          total: 11,
-          calculationNote: "1 Parcel to hostel gate: ₹11"
-        },
-        liveLocation: null,
-        status: "Delivered",
-        statusHistory: [
-          { status: "Placed", time: "09:30 AM, Yesterday", note: "Order placed" },
-          { status: "Picked", time: "10:15 AM, Yesterday", note: "Picked from Uni Mall" },
-          { status: "On the way", time: "10:40 AM, Yesterday", note: "En route to Boys Hostel 1" },
-          { status: "Delivered", time: "11:05 AM, Yesterday", note: "Handed over safely with OTP verification" }
-        ],
-        deliveryBoy: DEMO_DELIVERY_CREDS.profile,
-        rating: 5,
-        feedback: "Super fast delivery! Saved me from walking to Uni Mall in the sun.",
-        createdAt: new Date(Date.now() - 26 * 60 * 60 * 1000).toISOString()
-      },
-      {
-        id: "LPU-6512",
-        otp: "7128",
-        name: "Dr. Vikram Singh",
-        phone: "9872112233",
-        hostelBlock: "Uni-Hotel & Faculty Apartments",
-        roomNo: "Suite 304",
-        trackingId: "BLUEDART-882190",
-        parcels: 3,
-        deliveryType: "room",
-        timeSlot: "12:00 PM - 02:00 PM (Afternoon Slot)",
-        photoUrl: "",
-        paymentMethod: "UPI",
-        paymentStatus: "Paid",
-        coupon: "CAMPUS10",
-        priceBreakdown: {
-          basePrice: 22,
-          roomExtra: 10,
-          subtotal: 32,
-          discount: 10,
-          total: 22,
-          calculationNote: "3 Parcels to gate: ₹22 + Room extra: ₹10 - Coupon ₹10 = ₹22"
-        },
-        liveLocation: null,
-        status: "Delivered",
-        statusHistory: [
-          { status: "Placed", time: "11:00 AM, 2 days ago", note: "Order placed" },
-          { status: "Picked", time: "11:30 AM, 2 days ago", note: "Picked from Uni Mall" },
-          { status: "Delivered", time: "12:15 PM, 2 days ago", note: "Delivered with OTP verification" }
-        ],
-        deliveryBoy: DEMO_DELIVERY_CREDS.profile,
-        rating: 5,
-        feedback: "Very convenient for staff apartments.",
-        createdAt: new Date(Date.now() - 50 * 60 * 60 * 1000).toISOString()
-      }
-    ];
-    SafeStore.set(STORAGE_KEYS.ORDERS, demoOrders);
-  }
-
-  // Seed default Weekly pass state if not set
-  if (!SafeStore.get(STORAGE_KEYS.WEEKLY_PASS, null)) {
-    const defaultPass = {
-      active: true,
-      remaining: 7,
-      total: 10,
-      price: 99,
-      purchasedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-      expiresAt: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString()
-    };
-    SafeStore.set(STORAGE_KEYS.WEEKLY_PASS, defaultPass);
-  }
-}
-
-// Automatically seed on evaluation
-seedDemoDataIfEmpty();
-
-/**
- * Get all orders from storage (latest first).
+ * Get all orders from storage. Initially EMPTY (no fake demo orders!).
  */
 function getOrders() {
   const orders = SafeStore.get(STORAGE_KEYS.ORDERS, []);
@@ -268,17 +482,17 @@ function getOrders() {
 }
 
 /**
- * Get a single order by ID (case-insensitive).
+ * Get a single order by ID
  */
 function getOrderById(id) {
   if (!id) return null;
-  const orders = getOrders();
   const searchId = id.trim().toUpperCase();
-  return orders.find(o => o.id && o.id.toUpperCase() === searchId) || null;
+  const orders = getOrders();
+  return orders.find(o => (o.id && o.id.toUpperCase() === searchId) || (o.trackingId && o.trackingId.toUpperCase() === searchId)) || null;
 }
 
 /**
- * Save a new order to storage.
+ * Create a new order placed by a student.
  */
 function createOrder(orderData) {
   const orders = getOrders();
@@ -300,233 +514,294 @@ function createOrder(orderData) {
     paymentMethod: orderData.paymentMethod || "UPI",
     paymentStatus: orderData.paymentMethod === "COD" ? "Pay on Delivery" : "Paid",
     coupon: orderData.coupon || "",
-    priceBreakdown: orderData.priceBreakdown || {},
+    priceBreakdown: orderData.priceBreakdown || { basePrice: 11, roomExtra: 0, subtotal: 11, discount: 0, total: 11 },
     liveLocation: orderData.liveLocation || null,
-    status: "Placed", // Initial status: Placed, waiting for runner to pick at Uni Mall
+    partnerId: null,
+    partnerName: null,
+    partnerPhone: null,
+    status: "Placed", // Placed -> Assigned -> Picked -> On the way -> Delivered -> Confirmed
     statusHistory: [
       {
         status: "Placed",
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ", Today",
-        note: "Order placed by student. Ready for Uni Mall pickup."
+        note: "Order placed by student. Awaiting partner assignment."
       }
     ],
-    deliveryBoy: DEMO_DELIVERY_CREDS.profile,
     rating: 0,
     feedback: "",
     createdAt: new Date().toISOString()
   };
 
-  // If weekly pass was used, decrement credits
-  if (orderData.useWeeklyPass) {
-    useWeeklyPassCredit();
-  }
-
-  // Mark user as having ordered
-  SafeStore.set(STORAGE_KEYS.HAS_ORDERED, "true");
-
   orders.unshift(fullOrder);
   SafeStore.set(STORAGE_KEYS.ORDERS, orders);
+
+  // Track that this order was created on this browser session for device privacy
+  const myOrders = SafeStore.get(STORAGE_KEYS.MY_ORDERS, []);
+  if (!myOrders.includes(newId)) {
+    myOrders.unshift(newId);
+    SafeStore.set(STORAGE_KEYS.MY_ORDERS, myOrders);
+  }
+
   return fullOrder;
 }
 
 /**
- * Update an order's status (Placed -> Picked -> On the way -> Delivered).
- * If newStatus === 'Delivered', the correct 4-digit OTP is mandatory!
+ * Assign an order to a delivery partner (Owner action)
  */
-function updateOrderStatus(orderId, newStatus, enteredOtp = null) {
+function assignOrder(orderId, partnerId) {
   const orders = getOrders();
-  const index = orders.findIndex(o => o.id === orderId);
-  if (index === -1) {
-    return { success: false, message: "Order not found." };
+  const order = orders.find(o => o.id === orderId);
+  if (!order) return { success: false, error: "Order not found." };
+
+  const partners = getPartners();
+  const partner = partners.find(p => p.id === partnerId);
+  if (!partner) return { success: false, error: "Partner not found." };
+
+  order.partnerId = partner.id;
+  order.partnerName = partner.name;
+  order.partnerPhone = partner.phone;
+  order.status = "Assigned";
+
+  const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ", Today";
+  order.statusHistory.push({
+    status: "Assigned",
+    time: timeStr,
+    note: `Assigned to delivery runner ${partner.name}.`
+  });
+
+  SafeStore.set(STORAGE_KEYS.ORDERS, orders);
+  return { success: true, order };
+}
+
+/**
+ * Delivery partner updates order status (Assigned -> Picked -> On the way -> Delivered)
+ */
+function updatePartnerOrderStatus(orderId, newStatus, otpInput, partnerId) {
+  const orders = getOrders();
+  const order = orders.find(o => o.id === orderId);
+  if (!order) return { success: false, message: "Order not found." };
+
+  // Partner must be assigned to this order
+  if (order.partnerId !== partnerId) {
+    return { success: false, message: "You are not assigned to this order." };
   }
 
-  const order = orders[index];
+  const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ", Today";
 
-  // If status is Delivered, verify 4-digit OTP
   if (newStatus === "Delivered") {
-    if (!enteredOtp || enteredOtp.trim() !== String(order.otp).trim()) {
+    if (!otpInput || otpInput.trim() !== order.otp) {
       return {
         success: false,
-        message: `Incorrect OTP! Expected 4-digit code provided to ${order.name}. Handover cannot be completed.`
+        message: "Incorrect OTP! Please ask the student for their 4-digit verification code."
       };
     }
-    order.paymentStatus = "Paid"; // Marked paid upon successful OTP verified delivery
-  }
 
-  order.status = newStatus;
-  const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ", Today";
-  
-  let note = `Status changed to ${newStatus}`;
-  if (newStatus === "Picked") note = "Picked up from Uni Mall Desk #3 by " + (order.deliveryBoy ? order.deliveryBoy.name : "runner");
-  if (newStatus === "On the way") note = "Runner is en route to " + order.hostelBlock;
-  if (newStatus === "Delivered") note = "Verified with 4-digit OTP and safely delivered.";
+    order.status = "Delivered";
+    order.paymentStatus = "Paid";
+    order.statusHistory.push({
+      status: "Delivered",
+      time: timeStr,
+      note: "4-Digit OTP verified. Handed over to student. Waiting for owner confirmation."
+    });
 
-  if (!Array.isArray(order.statusHistory)) {
-    order.statusHistory = [];
-  }
-
-  order.statusHistory.push({
-    status: newStatus,
-    time: timeStr,
-    note: note
-  });
-
-  orders[index] = order;
-  SafeStore.set(STORAGE_KEYS.ORDERS, orders);
-  return { success: true, message: `Status updated to "${newStatus}"!`, order: order };
-}
-
-/**
- * Submit star rating and review for an order.
- */
-function rateOrder(orderId, rating, feedbackText = "") {
-  const orders = getOrders();
-  const index = orders.findIndex(o => o.id === orderId);
-  if (index === -1) return false;
-
-  orders[index].rating = Math.min(5, Math.max(1, parseInt(rating, 10) || 5));
-  orders[index].feedback = (feedbackText || "").trim();
-  SafeStore.set(STORAGE_KEYS.ORDERS, orders);
-  return true;
-}
-
-/**
- * Weekly Pass operations
- */
-function getWeeklyPass() {
-  const pass = SafeStore.get(STORAGE_KEYS.WEEKLY_PASS, null);
-  if (!pass) return { active: false, remaining: 0 };
-  const isExpired = new Date(pass.expiresAt) < new Date();
-  if (isExpired || pass.remaining <= 0) {
-    pass.active = false;
-  }
-  return pass;
-}
-
-function buyWeeklyPass() {
-  const newPass = {
-    active: true,
-    remaining: 10,
-    total: 10,
-    price: 99,
-    purchasedAt: new Date().toISOString(),
-    expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
-  };
-  SafeStore.set(STORAGE_KEYS.WEEKLY_PASS, newPass);
-  return newPass;
-}
-
-function useWeeklyPassCredit() {
-  const pass = getWeeklyPass();
-  if (pass.active && pass.remaining > 0) {
-    pass.remaining -= 1;
-    if (pass.remaining === 0) {
-      pass.active = false;
+    // Increment partner's completed deliveries
+    const partners = getPartners();
+    const partner = partners.find(p => p.id === partnerId);
+    if (partner) {
+      partner.deliveriesDone = (partner.deliveriesDone || 0) + 1;
+      SafeStore.set(STORAGE_KEYS.PARTNERS, partners);
     }
-    SafeStore.set(STORAGE_KEYS.WEEKLY_PASS, pass);
-    return true;
+
+    SafeStore.set(STORAGE_KEYS.ORDERS, orders);
+    return { success: true, message: "Delivery verified with OTP! Waiting for owner confirmation.", order };
   }
-  return false;
+
+  // Other statuses: Picked or On the way
+  order.status = newStatus;
+  let note = `Status updated to ${newStatus}`;
+  if (newStatus === "Picked") note = `Parcel collected from Uni Mall by ${order.partnerName || "runner"}.`;
+  if (newStatus === "On the way") note = `Runner is on the way to ${order.hostelBlock}.`;
+
+  order.statusHistory.push({ status: newStatus, time: timeStr, note });
+  SafeStore.set(STORAGE_KEYS.ORDERS, orders);
+
+  return { success: true, message: `Status updated to ${newStatus}`, order };
 }
 
 /**
- * Contact Message storage
+ * Owner confirms delivery (Delivered -> Confirmed)
  */
-function saveContactMessage(name, phone, hostel, message) {
-  const existing = SafeStore.get(STORAGE_KEYS.CONTACT_MESSAGES, []);
-  existing.unshift({
-    id: "MSG-" + Date.now(),
-    name: (name || "").trim(),
-    phone: (phone || "").trim(),
-    hostel: (hostel || "").trim(),
-    message: (message || "").trim(),
-    time: new Date().toLocaleString()
+function confirmDelivery(orderId) {
+  const orders = getOrders();
+  const order = orders.find(o => o.id === orderId);
+  if (!order) return { success: false, error: "Order not found." };
+
+  order.status = "Confirmed";
+  const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ", Today";
+  order.statusHistory.push({
+    status: "Confirmed",
+    time: timeStr,
+    note: "Delivery verified and officially confirmed by owner."
   });
-  SafeStore.set(STORAGE_KEYS.CONTACT_MESSAGES, existing);
+
+  SafeStore.set(STORAGE_KEYS.ORDERS, orders);
+  return { success: true, order };
+}
+
+// ========================================================
+// 4. STUDENT PRIVACY & VERIFIED TRACK ACCESS (PART E)
+// ========================================================
+
+/**
+ * Verified Tracking for Students:
+ * Requires Order/Tracking ID AND the last 4 digits of the phone number used for the order.
+ * If authorized, shows sanitized details. Never leaks other students' personal data.
+ */
+function verifyTrackAccess(orderIdInput, phoneLast4Input) {
+  if (!orderIdInput) return { success: false, error: "Please enter your Order ID or Courier Reference." };
+
+  const order = getOrderById(orderIdInput);
+  if (!order) {
+    return { success: false, error: "Order not found. Please check your Order ID." };
+  }
+
+  // Check last 4 digits of phone (Strict Verification: PART E.1)
+  const cleanLast4 = (phoneLast4Input || "").replace(/[^0-9]/g, "");
+  const orderPhoneClean = (order.phone || "").replace(/[^0-9]/g, "");
+
+  const matchesPhone = cleanLast4.length === 4 && orderPhoneClean.endsWith(cleanLast4);
+
+  if (!matchesPhone) {
+    return {
+      success: false,
+      error: "Order not found. Please verify the Order ID and the last 4 digits of the phone number used."
+    };
+  }
+
+  // Return sanitized object preserving privacy
+  const runnerFirstName = order.partnerName ? order.partnerName.split(" ")[0] : "Assigned Partner";
+
+  return {
+    success: true,
+    order: {
+      id: order.id,
+      trackingId: order.trackingId,
+      status: order.status,
+      statusHistory: order.statusHistory || [],
+      parcels: order.parcels,
+      deliveryType: order.deliveryType,
+      timeSlot: order.timeSlot,
+      hostelBlock: order.hostelBlock,
+      runnerFirstName,
+      runnerPhone: order.partnerPhone || (window.OWNER_CONFIG ? window.OWNER_CONFIG.OWNER_PHONE : "919680040551"),
+      otp: order.otp, // Authorized recipient sees OTP
+      priceBreakdown: order.priceBreakdown,
+      paymentStatus: order.paymentStatus,
+      paymentMethod: order.paymentMethod,
+      liveLocation: order.liveLocation,
+      rating: order.rating || 0,
+      createdAt: order.createdAt
+    }
+  };
+}
+
+/**
+ * Return only orders placed from this browser device.
+ */
+function getMyOrders() {
+  const myOrderIds = SafeStore.get(STORAGE_KEYS.MY_ORDERS, []);
+  const allOrders = getOrders();
+  return allOrders.filter(o => myOrderIds.includes(o.id));
+}
+
+function rateOrder(orderId, rating, feedback = "") {
+  const orders = getOrders();
+  const order = orders.find(o => o.id === orderId);
+  if (!order) return false;
+
+  order.rating = rating;
+  order.feedback = feedback.trim();
+  SafeStore.set(STORAGE_KEYS.ORDERS, orders);
   return true;
 }
 
-/**
- * Check if current user is placing their first order
- */
-function isUserFirstOrder(phone = "") {
-  const orders = getOrders();
-  if (!orders || orders.length === 0) return true;
-  if (phone && phone.trim()) {
-    const cleanPhone = phone.trim();
-    return !orders.some(o => o.phone && o.phone.trim() === cleanPhone);
-  }
-  const flag = SafeStore.get(STORAGE_KEYS.HAS_ORDERED, null);
-  return !flag;
+// ========================================================
+// 5. CONTACT MESSAGES (LOCALLY STORED FOR DEMO)
+// ========================================================
+
+function saveContactMessage(name, phone, hostel, msg) {
+  const messages = SafeStore.get(STORAGE_KEYS.MESSAGES, []);
+  const newMsg = {
+    id: "MSG-" + Math.floor(1000 + Math.random() * 9000),
+    name: name.trim(),
+    phone: phone.trim(),
+    hostel: hostel.trim(),
+    message: msg.trim(),
+    createdAt: new Date().toISOString()
+  };
+  messages.unshift(newMsg);
+  SafeStore.set(STORAGE_KEYS.MESSAGES, messages);
+  return newMsg;
 }
 
-/**
- * Admin Statistics Calculation
- */
-function getAdminStats() {
+function getContactMessages() {
+  const msgs = SafeStore.get(STORAGE_KEYS.MESSAGES, []);
+  return Array.isArray(msgs) ? msgs : [];
+}
+
+function deleteContactMessage(id) {
+  let msgs = getContactMessages();
+  msgs = msgs.filter(m => m.id !== id);
+  SafeStore.set(STORAGE_KEYS.MESSAGES, msgs);
+  return true;
+}
+
+// ========================================================
+// 6. OWNER DASHBOARD ANALYTICS & STATS
+// ========================================================
+
+function getOwnerStats() {
   const orders = getOrders();
   const todayStr = new Date().toDateString();
 
-  let totalEarnings = 0;
   let todayOrdersCount = 0;
-  let statusCounts = {
+  let totalEarnings = 0;
+  const statusCounts = {
     Placed: 0,
+    Assigned: 0,
     Picked: 0,
     "On the way": 0,
-    Delivered: 0
+    Delivered: 0,
+    Confirmed: 0
   };
-  let typeCounts = {
+  const typeCounts = {
     gate: 0,
     room: 0,
     live: 0
   };
-  let hostelCategoryCounts = {
-    boys: 0,
-    girls: 0,
-    other: 0
-  };
-  let totalRatingSum = 0;
-  let ratedCount = 0;
 
   orders.forEach(o => {
-    totalEarnings += (o.priceBreakdown && o.priceBreakdown.total !== undefined) ? o.priceBreakdown.total : 11;
-    
-    // Check if created today
     const orderDate = new Date(o.createdAt).toDateString();
     if (orderDate === todayStr) {
       todayOrdersCount++;
     }
 
-    // Status tally
+    if (o.status === "Delivered" || o.status === "Confirmed") {
+      const amt = (o.priceBreakdown && typeof o.priceBreakdown.total === "number") ? o.priceBreakdown.total : 0;
+      totalEarnings += amt;
+    }
+
     if (statusCounts[o.status] !== undefined) {
       statusCounts[o.status]++;
-    } else {
-      statusCounts[o.status] = 1;
     }
 
-    // Delivery Type tally
-    const dtype = o.deliveryType || "gate";
-    if (typeCounts[dtype] !== undefined) {
-      typeCounts[dtype]++;
-    }
-
-    // Hostel Category tally
-    const cat = window.getHostelCategory ? window.getHostelCategory(o.hostelBlock) : "other";
-    if (hostelCategoryCounts[cat] !== undefined) {
-      hostelCategoryCounts[cat]++;
-    } else {
-      hostelCategoryCounts.other++;
-    }
-
-    // Rating tally
-    if (o.rating && o.rating > 0) {
-      totalRatingSum += o.rating;
-      ratedCount++;
+    if (o.deliveryType && typeCounts[o.deliveryType] !== undefined) {
+      typeCounts[o.deliveryType]++;
     }
   });
 
-  const avgRating = ratedCount > 0 ? (totalRatingSum / ratedCount).toFixed(1) : "4.9";
-  const pass = getWeeklyPass();
+  const partners = getPartners();
+  const activePartnersCount = partners.filter(p => p.status === "Active").length;
 
   return {
     totalOrders: orders.length,
@@ -534,38 +809,75 @@ function getAdminStats() {
     totalEarnings,
     statusCounts,
     typeCounts,
-    hostelCategoryCounts,
-    avgRating,
-    ratedCount,
-    weeklyPassRemaining: pass.remaining,
-    weeklyPassActive: pass.active
+    totalPartners: partners.length,
+    activePartnersCount
   };
 }
 
-// Global Export
+// Backwards-compatible alias for admin script
+function getAdminStats() {
+  return getOwnerStats();
+}
+
+// Reset data helper
+function resetAllData() {
+  SafeStore.remove(STORAGE_KEYS.ORDERS);
+  SafeStore.remove(STORAGE_KEYS.MY_ORDERS);
+  SafeStore.remove(STORAGE_KEYS.MESSAGES);
+  return true;
+}
+
+// Backwards-compatible dummy helpers
+function buyWeeklyPass() {
+  const pass = { active: true, remaining: 10, total: 10, price: 99, purchasedAt: new Date().toISOString() };
+  SafeStore.set(STORAGE_KEYS.WEEKLY_PASS, pass);
+  return pass;
+}
+
+function getWeeklyPass() {
+  return SafeStore.get(STORAGE_KEYS.WEEKLY_PASS, null);
+}
+
+// Export module globally
 window.LPU_STORAGE = {
-  STORAGE_KEYS,
   SafeStore,
-  DEMO_DELIVERY_CREDS,
-  DEMO_ADMIN_CREDS,
-  generateOTP,
-  generateOrderId,
+  SafeSession,
+  STORAGE_KEYS,
+  sha256,
+  // Owner Auth
+  ownerLogin,
+  getOwnerSession,
+  ownerLogout,
+  ownerChangePassword,
+  getOwnerStats,
+  getAdminStats,
+  // Partners
+  getPartners,
+  addPartner,
+  updatePartnerStatus,
+  resetPartnerPassword,
+  deletePartner,
+  partnerLogin,
+  getPartnerSession,
+  partnerLogout,
+  partnerChangePassword,
+  // Orders
   getOrders,
   getOrderById,
   createOrder,
-  updateOrderStatus,
+  assignOrder,
+  updatePartnerOrderStatus,
+  confirmDelivery,
   rateOrder,
-  getWeeklyPass,
-  buyWeeklyPass,
-  useWeeklyPassCredit,
+  // Student Privacy
+  verifyTrackAccess,
+  getMyOrders,
+  // Messages
   saveContactMessage,
-  isUserFirstOrder,
-  getAdminStats,
-  resetDemoData: function() {
-    SafeStore.remove(STORAGE_KEYS.ORDERS);
-    SafeStore.remove(STORAGE_KEYS.WEEKLY_PASS);
-    SafeStore.remove(STORAGE_KEYS.HAS_ORDERED);
-    seedDemoDataIfEmpty();
-    return true;
-  }
+  getContactMessages,
+  deleteContactMessage,
+  // Misc
+  resetAllData,
+  buyWeeklyPass,
+  getWeeklyPass
 };
